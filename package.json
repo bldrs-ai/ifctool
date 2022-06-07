@@ -7,7 +7,7 @@
     "url": "https://github.com/bldrs-ai/tools/issues"
   },
   "scripts": {
-    "build": "node config/esbuild.js && shx cp config/package.json dist",
+    "build": "node config/esbuild.js",
     "lint": "yarn eslint src",
     "ifctool": "node src/ifctool.js",
     "ifctool-dist": "node dist/ifctool.js",
@@ -16,7 +16,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "web-ifc": "^2.1.0"
+    "web-ifc": "^0.0.35"
   },
   "devDependencies": {
     "esbuild": "^0.14.22",
@@ -31,16 +31,15 @@
     "verbose": false,
     "testEnvironment": "node",
     "testPathIgnorePatterns": [
+      "src/ifctool.test.js"
     ],
-    "transform": {
-    },
+    "transform": {},
     "transformIgnorePatterns": [
       "/node_modules/(?!(web-ifc)/)"
     ],
     "moduleNameMapper": {
       "^.+\\.css$": "identity-obj-proxy"
     },
-    "setupFilesAfterEnv": [
-    ]
+    "setupFilesAfterEnv": []
   }
 }
