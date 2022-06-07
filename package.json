@@ -16,6 +16,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "json2csv": "^5.0.7",
     "web-ifc": "^0.0.35"
   },
   "devDependencies": {
