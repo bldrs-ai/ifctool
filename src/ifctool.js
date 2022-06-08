@@ -24,6 +24,10 @@ As CSV
 With custom formatting
 
   node src/ifctool.js index.ifc --type=IFCBUILDINGELEMENTPROXY --out=csv --fmt='["Name.value"]'
+
+Recurse
+
+  node src/ifctool.js index.ifc --elt=1 --recurse=true
 `
 
 function parseFlags(args) {
@@ -53,21 +57,34 @@ export async function main() {
   const model = new IfcModel()
   const rawFileData = fs.readFileSync(ifcFilename)
   await model.open(rawFileData)
-  let ret
-  if (flags.id) {
-    ret = model.getElt(parseInt(flags.id))
-  } else if (flags.type) {
-    ret = flags.type.split(',').map((t) => model.getEltsOfNamedType(t.toUpperCase())).flat()
-  }
-  if (flags.out && flags.out == 'csv') {
-    if (flags.fmt != undefined) {
-      const fields = JSON.parse(flags.fmt)
-      ret = parse(ret, {fields})
-    } else {
-      ret = parse(ret)
+  try {
+    let ret
+    if (flags.elt) {
+      ret = model.getElt(parseInt(flags.elt))
+      if (ret === undefined) {
+        console.error('No element with ID: ' + flags.elt)
+        return
+      }
+    } else if (flags.type) {
+      ret = flags.type.split(',').map((t) => model.getEltsOfNamedType(t.toUpperCase())).flat()
     }
+    if (flags.recurse) {
+      ret = await Promise.all([ret].flat().map((elt) => {
+        return model.deref(elt)
+      }).flat())
+    }
+    if (flags.out && flags.out == 'csv') {
+      if (flags.fmt != undefined) {
+        const fields = JSON.parse(flags.fmt)
+        ret = parse(ret, {fields})
+      } else {
+        ret = parse(ret)
+      }
+    }
+    console.log(ret)
+  } catch (e) {
+    console.trace(e)
   }
-  console.log(ret)
 }
 
 

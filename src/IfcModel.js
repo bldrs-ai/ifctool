@@ -51,6 +51,11 @@ export default class IfcModel {
   }
 
 
+  async deref(elt) {
+    return await IfcHelper.deref(elt, this.webIfc)
+  }
+
+
   /** Dispose of resources used by the WebIFC API. */
   close() {
     this.webIfc.CloseModel(this.modelId);

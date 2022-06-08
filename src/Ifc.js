@@ -9,7 +9,12 @@ import {stoi} from './strings.js'
  * the both type and value properties are defined on the object.
  */
 export function isTypeValue(obj) {
-  return obj['type'] != null && obj['value'] != null
+  if (obj === null || obj == undefined) {
+    return false
+  }
+  const is = obj['type'] != null && obj['value'] != null
+  // console.error(`OBJ isTypeValue(${is}): `, obj)
+  return is
 }
 
 
@@ -139,11 +144,11 @@ export function decodeIFCString(ifcString) {
  * Recursive dereference of nested IFC. If ref.type is (1-4), viewer and typeValCb will not be used.
  * @param {Object} ref The element to dereference
  * @param {Object} webIfc IFC model
- * @param {Number} serial Serial number for react IDs
  * @param {function} typeValCb async callback for rendering sub-object
  * @return {any} A flattened version of the referenced element.  TODO(pablo): clarify type.
  */
-export async function deref(ref, webIfc = null, serial = 0, typeValCb = null) {
+export async function deref(ref, webIfc = null) {
+  // console.error('REF: ', ref)
   if (ref === null || ref === undefined) {
     throw new Error('Ref undefined or null: ', ref)
   }
@@ -154,23 +159,30 @@ export async function deref(ref, webIfc = null, serial = 0, typeValCb = null) {
       case 3: return ref.value // no idea.. values are typically in CAPS
       case 4: return ref.value // typically measures of space, time or angle.
       case 5: {
-        // TODO, only recursion uses the webIfc, serial.
+        // TODO, only recursion uses the webIfc.
+        // HACK(pablo): replace 0 below with modelId
         const refId = stoi(ref.value)
-        return await typeValCb(
-            await webIfc.getItemProperties(refId), webIfc, serial)
+        return await deref(await webIfc.properties.getItemProperties(0, refId, true), webIfc)
       }
       default:
         return 'Unknown type: ' + ref.value
     }
   } else if (Array.isArray(ref)) {
+    // console.error('ARRAY: ', ref)
     return (await Promise.all(ref.map(
-        async (v, ndx) => isTypeValue(v) ?
-        await deref(v, webIfc, ndx, typeValCb) :
-        await typeValCb(v, webIfc, ndx),
+        async (v) => isTypeValue(v) ?
+        await deref(v, webIfc) :
+        v,
     )))
   }
   if (typeof ref === 'object') {
-    debug().warn('should not be object: ', ref)
+    // console.error('Object: ', ref)
+    Object.keys(ref).map(async (key) => {
+      const val = ref[key]
+      if (isTypeValue(val)) {
+        ref[key] = await deref(val, webIfc)
+      }
+    })
   }
   return ref // typically number or string.
 }
