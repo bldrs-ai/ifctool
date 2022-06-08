@@ -25,9 +25,9 @@ With custom formatting
 
   node src/ifctool.js index.ifc --type=IFCBUILDINGELEMENTPROXY --out=csv --fmt='["Name.value"]'
 
-Recurse
+Dereference basic types, like Ifc names
 
-  node src/ifctool.js index.ifc --elt=1 --recurse=true
+  node src/ifctool.js index.ifc --elt=1 --deref=basic
 `
 
 function parseFlags(args) {
@@ -68,7 +68,7 @@ export async function main() {
     } else if (flags.type) {
       ret = flags.type.split(',').map((t) => model.getEltsOfNamedType(t.toUpperCase())).flat()
     }
-    if (flags.recurse) {
+    if (flags.deref == 'basic') {
       ret = await Promise.all([ret].flat().map((elt) => {
         return model.deref(elt)
       }).flat())
