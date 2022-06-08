@@ -57,7 +57,7 @@ export async function main() {
   if (flags.id) {
     ret = model.getElt(parseInt(flags.id))
   } else if (flags.type) {
-    ret = model.getEltsOfNamedType(flags.type)
+    ret = model.getEltsOfNamedType(flags.type.toUpperCase())
   }
   if (flags.out && flags.out == 'csv') {
     if (flags.fmt != undefined) {
