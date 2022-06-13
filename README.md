@@ -1,5 +1,5 @@
-# tools
-Command line tools for working with models
+# ifctool
+Command line tool for working with IFC models
 
 ## Install
 
