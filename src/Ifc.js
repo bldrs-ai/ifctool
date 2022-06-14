@@ -13,7 +13,7 @@ export function isTypeValue(obj) {
     return false
   }
   const is = obj['type'] != null && obj['value'] != null
-  // console.error(`OBJ isTypeValue(${is}): `, obj)
+  debug().log(`OBJ isTypeValue(${is}): `, obj)
   return is
 }
 
@@ -148,7 +148,7 @@ export function decodeIFCString(ifcString) {
  * @return {any} A flattened version of the referenced element.  TODO(pablo): clarify type.
  */
 export async function deref(ref, webIfc = null) {
-  // console.error('REF: ', ref)
+  debug().log('REF: ', ref)
   if (ref === null || ref === undefined) {
     throw new Error('Ref undefined or null: ', ref)
   }
@@ -168,7 +168,7 @@ export async function deref(ref, webIfc = null) {
         return 'Unknown type: ' + ref.value
     }
   } else if (Array.isArray(ref)) {
-    // console.error('ARRAY: ', ref)
+    debug().log('ARRAY: ', ref)
     return (await Promise.all(ref.map(
         async (v) => isTypeValue(v) ?
         await deref(v, webIfc) :
@@ -176,7 +176,7 @@ export async function deref(ref, webIfc = null) {
     )))
   }
   if (typeof ref === 'object') {
-    // console.error('Object: ', ref)
+    debug().log('Object: ', ref)
     Object.keys(ref).map(async (key) => {
       const val = ref[key]
       if (isTypeValue(val)) {

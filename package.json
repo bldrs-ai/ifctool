@@ -11,7 +11,7 @@
     "lint": "yarn eslint src",
     "ifctool": "node src/ifctool.js",
     "ifctool-dist": "node dist/ifctool.js",
-    "test": "jest",
+    "test": "node --experimental-vm-modules $(yarn bin jest)",
     "precommit": "yarn lint && yarn test",
     "prepare": "husky install"
   },
@@ -20,6 +20,10 @@
     "web-ifc": "^0.0.35"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.16.4",
+    "@babel/core": "^7.17.9",
+    "@babel/eslint-parser": "^7.17.0",
+    "@babel/plugin-syntax-import-assertions": "^7.16.7",
     "esbuild": "^0.14.22",
     "eslint": "^8.14.0",
     "eslint-config-google": "^0.14.0",
@@ -32,7 +36,6 @@
     "verbose": false,
     "testEnvironment": "node",
     "testPathIgnorePatterns": [
-      "src/ifctool.test.js"
     ],
     "transform": {},
     "transformIgnorePatterns": [
