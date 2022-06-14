@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "json2csv": "^5.0.7",
+    "node-fetch": "^3.2.6",
     "web-ifc": "^0.0.35"
   },
   "devDependencies": {
