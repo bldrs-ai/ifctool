@@ -1,8 +1,6 @@
-import {MockViewer, MockModel} from './IfcMock.test'
 import {
   decodeIFCString,
   deref,
-  getType,
   isTypeValue,
 } from './Ifc'
 
@@ -24,50 +22,7 @@ test('decodeIfcString', () => {
 })
 
 
-test('IfcManager.getType', () => {
-  const elt = {
-    children: [],
-    expressID: 1,
-    Name: 'Building',
-  }
-  expect(getType(new MockModel, elt)).toEqual('IFCELEMENT')
-})
-
-
 test('deref simple', async () => {
   const label = 'test val'
   expect(await deref(label)).toEqual(label)
-})
-
-
-test('deref array of simple', async () => {
-  const label = 'test val'
-  expect(await deref([label, label], new MockViewer, 0, (e) => e)).toEqual([label, label])
-})
-
-
-test('deref simple typeVal', async () => {
-  const label = 'test label'
-  const tv = {
-    type: 1,
-    value: label,
-  }
-  expect(isTypeValue(tv)).toBeTruthy()
-  expect(await deref(tv, new MockViewer, 0, (e) => e)).toEqual(label)
-})
-
-
-test('deref reference typeVal', async () => {
-  const label = 'test label'
-  const tv = {
-    type: 5,
-    value: 0,
-  }
-  expect(isTypeValue(tv)).toBeTruthy()
-  expect(await deref(tv, new MockModel({
-    0: {
-      type: 1,
-      value: label,
-    },
-  }), 0, (e) => e.value)).toEqual(label)
 })

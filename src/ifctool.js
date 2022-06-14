@@ -30,6 +30,10 @@ Dereference basic types, like Ifc names
   node src/ifctool.js index.ifc --elt=1 --deref=basic
 `
 
+/**
+ * @param {Array<string>} args
+ * @return {Array<string>}
+ */
 function parseFlags(args) {
   const flags = {}
   for (let i = 0; i < args.length; i++) {
@@ -45,8 +49,10 @@ function parseFlags(args) {
   return flags
 }
 
+
+/** Main entry point for ifctool. */
 export async function main() {
-  let args = process.argv.slice(2)
+  const args = process.argv.slice(2)
   if (args.length < 2) {
     console.error(USAGE)
     return
@@ -74,11 +80,11 @@ export async function main() {
       }).flat())
     }
     if (flags.out && flags.out == 'csv') {
-      if (flags.fmt != undefined) {
+      if (flags.fmt == undefined) {
+        ret = parse(ret)
+      } else {
         const fields = JSON.parse(flags.fmt)
         ret = parse(ret, {fields})
-      } else {
-        ret = parse(ret)
       }
     }
     console.log(ret)

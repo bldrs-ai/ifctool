@@ -1,12 +1,16 @@
+/* eslint-disable new-cap */
+/* This rule is for WebIFC API calls which use this style. */
 import WebIFC from 'web-ifc'
 import * as IfcHelper from './Ifc.js'
 import IfcTypesMap from './IfcTypesMap.js'
 
 
 const typeIdsByName = {}
-for (let id in IfcTypesMap) {
-  const name = IfcTypesMap[id]
-  typeIdsByName[name] = parseInt(id)
+for (const id in IfcTypesMap) {
+  if (Object.prototype.hasOwnProperty.call(IfcTypesMap, id)) {
+    const name = IfcTypesMap[id]
+    typeIdsByName[name] = parseInt(id)
+  }
 }
 
 
@@ -14,43 +18,52 @@ for (let id in IfcTypesMap) {
  * Test wrapper for WebIFC.IfcAPI
  */
 export default class IfcModel {
+  /** Just initializes WebIFC API. */
   constructor() {
-    this.webIfc = new WebIFC.IfcAPI();
+    this.webIfc = new WebIFC.IfcAPI()
   }
 
   /** @param {byte[]} rawFileData The IFC file bytes. */
   async open(rawFileData) {
     await this.webIfc.Init()
-    this.modelId = this.webIfc.OpenModel(
-      rawFileData,
-      /* optional settings object */
-    );
+    this.modelId = this.webIfc.OpenModel(rawFileData /* , optional settings object */)
   }
 
 
-  /** @param {number} expressId */
+  /**
+   * @param {number} expressId
+   * @return {object} IFC Element
+   */
   getElt(expressId) {
-    if (expressId == undefined)
+    if (expressId == undefined) {
       throw new Error('Must provide an Express ID')
+    }
     const elt = this.webIfc.GetLine(this.modelId, expressId, true)
     return elt
   }
 
 
-  /** @param {string} elt IFC element */
+  /**
+   * @param {string} typeName IFC element type
+   * @return {Array<Element>} IFC Element
+   */
   getEltsOfNamedType(typeName) {
     const typeId = typeIdsByName[typeName]
     if (typeId == undefined) throw new Error('Unknown type name: ', typeName)
-    const properties = this.webIfc.GetLineIDsWithType(this.modelId, typeId);
+    const properties = this.webIfc.GetLineIDsWithType(this.modelId, typeId)
     const lines = []
     for (let i = 0; i < properties.size(); i++) {
-      let expressID = parseInt(properties.get(i));
+      const expressID = parseInt(properties.get(i))
       lines.push(this.webIfc.GetLine(this.modelId, expressID))
     }
     return lines
   }
 
 
+  /**
+   * Dereference elements like {type: 5, value: 23423} to {expressID: 23423, ...}.
+   * @param {object} elt IFC Element
+   */
   async deref(elt) {
     return await IfcHelper.deref(elt, this.webIfc)
   }
@@ -58,6 +71,6 @@ export default class IfcModel {
 
   /** Dispose of resources used by the WebIFC API. */
   close() {
-    this.webIfc.CloseModel(this.modelId);
+    this.webIfc.CloseModel(this.modelId)
   }
 }
