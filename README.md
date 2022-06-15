@@ -17,7 +17,7 @@ Usage: node ifctool.js <file.ifc> [--flag=value]*
   --elt=id       Print the IFC element with the given ID
   --type=type    Print the IFC elements of the given type
   --out=csv      Print as CSV instead of JSON
-    --fields=... Format CSV, see: https://www.npmjs.com/package/json2csv
+    --fmt=...    Format CSV, see: https://www.npmjs.com/package/json2csv
 
 EXAMPLES
 
