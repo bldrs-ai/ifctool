@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import fs from 'fs'
 import {parse} from 'json2csv'
 import IfcModel from './IfcModel.js'
