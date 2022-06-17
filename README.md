@@ -1,5 +1,5 @@
 # ifctool
-Command line tool for working with IFC models.  It extracts IFC elements by ID or types, and exports as JSON or CSV (via [json2csv](https://www.npmjs.com/package/json2csv)).
+Command line tool for working with IFC models.  It extracts IFC elements by ID or types (via [web-ifc](https://github.com/tomvandig/web-ifc)), and exports as JSON or CSV (via [json2csv](https://www.npmjs.com/package/json2csv)).
 
 ## Install
 
