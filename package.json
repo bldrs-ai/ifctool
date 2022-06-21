@@ -1,6 +1,6 @@
 {
   "name": "@bldrs-ai/ifctool",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "src/ifctool.js",
   "bin": "src/main.js",
   "homepage": "https://github.com/bldrs-ai/ifctool",
@@ -16,7 +16,7 @@
   "scripts": {
     "build": "node config/esbuild.js",
     "lint": "yarn eslint src",
-    "ifctool": "node src/ifctool.js",
+    "ifctool": "node src/main.js",
     "ifctool-dist": "node dist/ifctool.js",
     "test": "node --experimental-vm-modules $(yarn bin jest)",
     "precommit": "yarn lint && yarn test",

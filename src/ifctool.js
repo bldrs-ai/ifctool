@@ -10,6 +10,7 @@ const USAGE = `Usage: node ifctool.js <file.ifc> [--flag=value]*
 
   --elts=id1[,id2,...]    Print the IFC elements with the given IDs
   --types=t1[,t2,...]     Print the IFC elements of the given types, case insensitive
+  --deref                 Dereference complex elements (work in progress)
   --out=json|csv          Print as JSON (default) or CSV.  See https://github.com/buildingSMART/ifcJSON
     --fields=...          Format CSV, see: https://www.npmjs.com/package/json2csv
   --verbose               Print diagnostic information to error
@@ -31,19 +32,16 @@ EXAMPLES
 
 Print the root element of the model in JSON:
 
-  node ifctool.js index.ifc --elts=1
+  node src/main.js model.ifc
 
-as CSV
+with dereferncing and output as CSV
 
-  node ifctool.js index.ifc --elts=1 --out=csv
+  node src/main.js model.ifc --deref --out=csv
 
 with custom formatting
 
-  node src/ifctool.js index.ifc --types=IFCWALL,IFCWINDOW --out=csv --fmt='["Name.value"]'
-
-dereference basic types, like Ifc names
-
-  node src/ifctool.js index.ifc --elts=1 --deref=basic
+  node src/main.js model.ifc --types=IFCWALL,IFCWINDOW --out=csv \\
+    --fmt='["expressID","OverallWidth","OverallHeight"]'
 `
 
 /**
@@ -165,7 +163,7 @@ export async function extractIfcProps(model, flags) {
  * @param {object} flags
  */
 export async function maybeDeref(model, ifcProps, flags) {
-  if (flags.deref == 'basic') {
+  if (flags.deref) {
     ifcProps = model.deref(ifcProps)
     if (Array.isArray(ifcProps)) {
       return await Promise.all(ifcProps.map((elt) => {

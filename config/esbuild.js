@@ -1,7 +1,7 @@
-import esbuild from 'esbuild';
+import esbuild from 'esbuild'
 
 
-const entry = 'src/ifctool.js'
+const entry = 'src/main.js'
 const buildDir = 'dist'
 const build = {
   entryPoints: [entry],
@@ -12,16 +12,17 @@ const build = {
   keepNames: true,
   sourcemap: true,
   outdir: buildDir,
+  format: 'esm',
   platform: 'node',
-  target: ['node14'],
+  target: ['node16'],
 }
 
 esbuild
-  .build(build)
-  .then((result) => {
-    console.log('Build succeeded.');
-  })
-  .catch((msg) => {
-    console.error(msg)
-    process.exit(1)
-  });
+    .build(build)
+    .then((result) => {
+      console.log('Build succeeded.')
+    })
+    .catch((msg) => {
+      console.error(msg)
+      process.exit(1)
+    })
