@@ -19,7 +19,7 @@ describe('ifctool', () => {
   test('processFile', async () => {
     const consoleLogMock = jest.spyOn(console, 'log').mockImplementation()
     const bs7m = fs.readFileSync(
-        './src/testdata/buildingSMART_TestSet_JAVA/7m900_tue_hello_wall_with_door.ifc')
+        './src/testdata/IFC_2x3/7m900_tue_hello_wall_with_door.ifc')
     const ifcPropsJSON = await processFile(bs7m, {elts: '1'})
     const obj = JSON.parse(ifcPropsJSON)
     expect(obj.expressID).toBe(1)

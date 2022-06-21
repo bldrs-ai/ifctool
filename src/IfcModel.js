@@ -19,7 +19,25 @@ export default class IfcModel {
   async open(rawFileData) {
     await this.webIfc.Init()
     this.modelId = this.webIfc.OpenModel(rawFileData /* , optional settings object */)
+    // web-ifc doesn't expose and header information, so
+    // do it the hard way.
+    // TODO(pablo): replace with web-ifc API.
+    // TODO(pablo): evaluate if needed, no examples in ifcJSON have it.
+    // this.headers = this.extractHeaders(rawFileData)
     return true
+  }
+
+
+  /** @param {byte[]} rawFileData */
+  extractHeaders(rawFileData) {
+    // const fileStr = new String(rawFileData)
+    const dataNdx = rawFileData.indexOf(Buffer.from('DATA;'))
+    if (dataNdx == -1) {
+      throw new Error('IFC file has no section marked "DATA;"')
+    }
+    const header = Buffer.alloc(dataNdx, 0)
+    rawFileData.copy(header, 0, 0, dataNdx)
+    // console.log('header: ', header.toString())
   }
 
 

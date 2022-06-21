@@ -175,6 +175,7 @@ export async function deref(ref, webIfc = null) {
     // Dereference object values.
     Object.keys(ref).map(async (objKey) => {
       const val = ref[objKey]
+      // TODO: https://technical.buildingsmart.org/resources/ifcimplementationguidance/ifc-guid/
       // if (objKey == 'GlobalId' && ref.expressID) {
       //   const guid = webIfc.ifcGuidMap.get(parseInt(ref.expressID))
       //   console.error(`#${ref.expressID} GlobalId: `, val, guid)
