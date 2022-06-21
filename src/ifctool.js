@@ -5,7 +5,7 @@ import {Exception} from './utils.js'
 import * as Arrays from './arrays.js'
 
 
-const USAGE = `Usage: node ifctool.js <file.ifc> [--flag=value]*
+const USAGE = `Usage: node src/main.js <file.ifc> [--flag=value]*
   <command> may be one of:
 
   --elts=id1[,id2,...]    Print the IFC elements with the given IDs
