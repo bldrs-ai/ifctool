@@ -5,15 +5,6 @@ import * as IfcHelper from './Ifc.js'
 import IfcTypesMap from './IfcTypesMap.js'
 
 
-const typeIdsByName = {}
-for (const id in IfcTypesMap) {
-  if (Object.prototype.hasOwnProperty.call(IfcTypesMap, id)) {
-    const name = IfcTypesMap[id]
-    typeIdsByName[name] = parseInt(id)
-  }
-}
-
-
 /**
  * Test wrapper for WebIFC.IfcAPI
  */
@@ -21,12 +12,20 @@ export default class IfcModel {
   /** Just initializes WebIFC API. */
   constructor() {
     this.webIfc = new WebIFC.IfcAPI()
+    this.modelId = undefined
   }
 
   /** @param {byte[]} rawFileData The IFC file bytes. */
   async open(rawFileData) {
     await this.webIfc.Init()
     this.modelId = this.webIfc.OpenModel(rawFileData /* , optional settings object */)
+    return true
+  }
+
+
+  /** @return {object} */
+  getProperties() {
+    return this.webIfc.properties
   }
 
 
@@ -72,5 +71,14 @@ export default class IfcModel {
   /** Dispose of resources used by the WebIFC API. */
   close() {
     this.webIfc.CloseModel(this.modelId)
+  }
+}
+
+
+const typeIdsByName = {}
+for (const id in IfcTypesMap) {
+  if (Object.prototype.hasOwnProperty.call(IfcTypesMap, id)) {
+    const name = IfcTypesMap[id]
+    typeIdsByName[name] = parseInt(id)
   }
 }

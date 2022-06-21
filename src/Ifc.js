@@ -1,4 +1,3 @@
-import debug from './debug.js'
 import {stoi} from './strings.js'
 
 
@@ -13,7 +12,6 @@ export function isTypeValue(obj) {
     return false
   }
   const is = obj['type'] != null && obj['value'] != null
-  debug().log(`OBJ isTypeValue(${is}): `, obj)
   return is
 }
 
@@ -148,9 +146,9 @@ export function decodeIFCString(ifcString) {
  * @return {any} A flattened version of the referenced element.  TODO(pablo): clarify type.
  */
 export async function deref(ref, webIfc = null) {
-  debug().log('REF: ', ref)
   if (ref === null || ref === undefined) {
-    throw new Error('Ref undefined or null: ', ref)
+    return 'null'
+    // throw new Error('Ref undefined or null: ', ref)
   }
   if (isTypeValue(ref)) {
     switch (ref.type) {
@@ -159,7 +157,6 @@ export async function deref(ref, webIfc = null) {
       case 3: return ref.value // no idea.. values are typically in CAPS
       case 4: return ref.value // typically measures of space, time or angle.
       case 5: {
-        // TODO, only recursion uses the webIfc.
         // HACK(pablo): replace 0 below with modelId
         const refId = stoi(ref.value)
         return await deref(await webIfc.properties.getItemProperties(0, refId, true), webIfc)
@@ -168,20 +165,21 @@ export async function deref(ref, webIfc = null) {
         return 'Unknown type: ' + ref.value
     }
   } else if (Array.isArray(ref)) {
-    debug().log('ARRAY: ', ref)
-    return (await Promise.all(ref.map(
-        async (v) => isTypeValue(v) ?
-        await deref(v, webIfc) :
-        v,
-    )))
-  }
-  if (typeof ref === 'object') {
-    debug().log('Object: ', ref)
-    Object.keys(ref).map(async (key) => {
-      const val = ref[key]
-      if (isTypeValue(val)) {
-        ref[key] = await deref(val, webIfc)
+    // Dereference array values.
+    (async () => {
+      for (let i = 0; i < ref.length; i++) {
+        ref[i] = await deref(ref[i], webIfc)
       }
+    })()
+  } else if (typeof ref === 'object') {
+    // Dereference object values.
+    Object.keys(ref).map(async (objKey) => {
+      const val = ref[objKey]
+      // if (objKey == 'GlobalId' && ref.expressID) {
+      //   const guid = webIfc.ifcGuidMap.get(parseInt(ref.expressID))
+      //   console.error(`#${ref.expressID} GlobalId: `, val, guid)
+      // }
+      ref[objKey] = await deref(val, webIfc)
     })
   }
   return ref // typically number or string.
