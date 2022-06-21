@@ -2,7 +2,7 @@
 Command line tool for working with IFC models.  It extracts IFC elements by ID or types (via [web-ifc](https://github.com/tomvandig/web-ifc)), and exports as JSON or CSV (via [json2csv](https://www.npmjs.com/package/json2csv)).
 
 ## Via npx
-
+Use [NPX](https://nodejs.dev/learn/the-npx-nodejs-package-runner) to run ifctool without cloning this repo.
 ```
 > npx @bldrs-ai/ifctool model.ifc
 ```
