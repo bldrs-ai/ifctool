@@ -55,30 +55,24 @@ with custom formatting
 e.g. with the included index.ifc:
 
 ```
-> node src/main.js index.ifc --elts=42
+> node src/main.js index.ifc --elts=5 --deref --omitNull
 web-ifc: 0.0.34 threading: 0
 {
   "type": "ifcJSON",
   "version": "0.0.1",
-  "originatingSystem": "IFC2JSON_js 3.0.1",
+  "originatingSystem": "IFC2JSON_js 3.0.2",
   "preprocessorVersion": "web-ifc 0.0.34",
-  "time": "2022-06-25T14:21:26.462Z",
+  "time": "2022-06-25T15:38:56.359Z",
   "data": [
     {
-      "expressID": 42,
-      "type": 448429030,
-      "Dimensions": {
-        "type": 0
-      },
-      "UnitType": {
-        "type": 3,
-        "value": "TIMEUNIT"
-      },
-      "Prefix": null,
-      "Name": {
-        "type": 3,
-        "value": "SECOND"
-      }
+      "expressID": 5,
+      "type": "IFCTELECOMADDRESS",
+      "Purpose": "USERDEFINED",
+      "UserDefinedPurpose": "Phone",
+      "TelephoneNumbers": [
+        "+00 11 101 10 10"
+      ],
+      "WWWHomePageURL": "info@bldrs.ai"
     }
   ]
 }
