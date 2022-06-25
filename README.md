@@ -72,7 +72,7 @@ web-ifc: 0.0.34 threading: 0
       "TelephoneNumbers": [
         "+00 11 101 10 10"
       ],
-      "WWWHomePageURL": "info@bldrs.ai"
+      "WWWHomePageURL": "http://bldrs.ai"
     }
   ]
 }
