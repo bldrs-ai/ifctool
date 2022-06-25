@@ -18,7 +18,7 @@ Usage: node src/main.js <file.ifc> [--flag[=value]]*
   --types=t1[,t2,...]     Print the IFC elements of the given types, case insensitive
   --deref                 Dereference complex elements (work in progress)
   --out=json|csv          Print as JSON (default) or CSV.  See https://github.com/buildingSMART/ifcJSON
-    --fields=...          Format CSV, see: https://www.npmjs.com/package/json2csv
+    --fmt=...             Format CSV, see: https://www.npmjs.com/package/json2csv
   --omitExpressId         Omit expressID
   --omitNull              Omit fields will null values
   --verbose               Print diagnostic information to error
@@ -48,7 +48,7 @@ with dereferncing and output as CSV
 
 with custom formatting
 
-  node src/main.js model.ifc --types=IFCWALL,IFCWINDOW --out=csv \
+  node src/main.js model.ifc --types=IFCWALL,IFCWINDOW --out=csv --deref \
     --fmt='["expressID","OverallWidth","OverallHeight"]'
 ```
 
@@ -86,6 +86,7 @@ web-ifc: 0.0.34 threading: 0
 ```
 
 # Versions
-- 3.0.0: JSON output now includes header section, towards ifcJSON compliance.
-- 2.0.0: Flag changes: no more --elt. Instead --elts and --types now support lists
-- 1.0.0: Let's see how web-ifc's JSON looks!
+Following (semver)[https://semver.org/], backwards-incompatible API changes use a new major version number.
+- 3.x: JSON output now includes header section, towards ifcJSON compliance.
+- 2.x: Flag changes: no more --elt. Instead --elts and --types now support lists
+- 1.x: Let's see how web-ifc's JSON looks!
