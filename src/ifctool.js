@@ -2,6 +2,7 @@ import fs from 'fs'
 import {parse} from 'json2csv'
 import IfcModel from './IfcModel.js'
 import {Exception} from './utils.js'
+import {getPackageVersion} from './version.js'
 import * as Arrays from './arrays.js'
 
 
@@ -13,6 +14,8 @@ const USAGE = `Usage: node src/main.js <file.ifc> [--flag=value]*
   --deref                 Dereference complex elements (work in progress)
   --out=json|csv          Print as JSON (default) or CSV.  See https://github.com/buildingSMART/ifcJSON
     --fields=...          Format CSV, see: https://www.npmjs.com/package/json2csv
+  --omitExpressId         Omit expressID
+  --omitNull              Omit fields will null values
   --verbose               Print diagnostic information to error
 
 Processing
@@ -151,6 +154,7 @@ export async function extractIfcProps(model, flags) {
     ifcProps = flags.types.split(',').map((t) => model.getEltsOfNamedType(t.toUpperCase())).flat()
   } else {
     // TODO(pablo): pass modelId as variable
+    console.error('getProperties: ', model.getProperties())
     ifcProps = await model.getProperties().getSpatialStructure(0, true)
   }
   return ifcProps
@@ -182,6 +186,7 @@ export async function maybeDeref(model, ifcProps, flags) {
  * @return {object} ifcProps
  */
 export function format(ifcProps, flags) {
+  let outputJson = true
   if (flags.out) {
     if (flags.out == 'csv') {
       if (flags.fmt == undefined) {
@@ -190,6 +195,7 @@ export function format(ifcProps, flags) {
         const fields = JSON.parse(flags.fmt)
         ifcProps = parse(ifcProps, {fields})
       }
+      outputJson = false
     } else if (flags.out == 'json') {
       // No-op, this is the default, but lets the user be explicit and
       // is backward compatible if we want to make it not default.
@@ -197,11 +203,39 @@ export function format(ifcProps, flags) {
       error('Unsupported output format: ' + flags.out)
       return null
     }
-  } else {
+  }
+  if (outputJson) {
     const sep = flags.fmt || 2
-    ifcProps = JSON.stringify(ifcProps, null, sep)
+    ifcProps = createHeader(ifcProps)
+    ifcProps = JSON.stringify(ifcProps, (k, v) => {
+      if (flags.omitExpressId && k == 'expressID') {
+        return undefined
+      }
+      if (flags.omitNull && (v === null || v == 'null')) {
+        return undefined
+      }
+      return v
+    }, sep)
   }
   return ifcProps
+}
+
+
+/**
+ * @param {object} ifcProps value to use for data element of header
+ * @return {object} ifcHeader
+ */
+function createHeader(ifcProps) {
+  const version = getPackageVersion()
+  const header = {
+    type: 'ifcJSON',
+    version: '0.0.1',
+    originatingSystem: `IFC2JSON_js ${version}`,
+    preprocessorVersion: `web-ifc 0.0.34`,
+    time: new Date().toISOString(),
+    data: [ifcProps],
+  }
+  return header
 }
 
 

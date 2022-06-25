@@ -1,4 +1,5 @@
 import {stoi} from './strings.js'
+import * as IfcTypesMap from './IfcTypesMap.js'
 
 
 /**
@@ -172,16 +173,22 @@ export async function deref(ref, webIfc = null) {
       }
     })()
   } else if (typeof ref === 'object') {
-    // Dereference object values.
-    Object.keys(ref).map(async (objKey) => {
+    for (const objKey in ref) {
+      if (!Object.prototype.hasOwnProperty.call(ref, objKey)) {
+        continue
+      }
       const val = ref[objKey]
       // TODO: https://technical.buildingsmart.org/resources/ifcimplementationguidance/ifc-guid/
       // if (objKey == 'GlobalId' && ref.expressID) {
       //   const guid = webIfc.ifcGuidMap.get(parseInt(ref.expressID))
       //   console.error(`#${ref.expressID} GlobalId: `, val, guid)
       // }
-      ref[objKey] = await deref(val, webIfc)
-    })
+      if (objKey == 'type') {
+        ref[objKey] = IfcTypesMap.getName(val, true)
+      } else {
+        ref[objKey] = await deref(val, webIfc)
+      }
+    }
   }
   return ref // typically number or string.
 }

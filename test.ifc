@@ -1,0 +1,55 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION (('ViewDefinition [CoordinationView,
+  QuantityTakeOffAddOnView]'), '2;1');
+FILE_NAME ('7m900_tue_hello_wall_with_door.ifc', '2015-12-01T21:53:56',
+  ('Architect'), ('Building Designer Office'),
+  'Your favorite text editor',
+  'your text editor version x.x', 'The authorising person');
+FILE_SCHEMA (('IFC2X3'));
+ENDSEC;
+
+
+DATA;
+
+/* define the project and the creator meta data */
+#1 = IFCPROJECT('0YvctVUKr0kugbFTf53O9L', #2, 'Default Project',
+     'Description of Default Project', $, $, $, (#20), #7);
+#2 = IFCOWNERHISTORY(#3, #6, $, .ADDED., $, $, $, 1217620436);
+#3 = IFCPERSONANDORGANIZATION(#4, #5, $);
+#4 = IFCPERSON('ID001', 'Beetz', 'Jakob', $, $, $, $, $);
+#5 = IFCORGANIZATION($, 'TU/e', 'Eindhoven University of Technology', $, $);
+#6 = IFCAPPLICATION(#5, 'version 0.10', 'My text editor', 'TA 1001');
+
+/*determine the units used in the project (e.g. length unit in metre) */
+#7 = IFCUNITASSIGNMENT((#8, #9, #10, #11, #15, #16, #17, #18, #19));
+#8 = IFCSIUNIT(*, .LENGTHUNIT., $, .METRE.);
+#9 = IFCSIUNIT(*, .AREAUNIT., $, .SQUARE_METRE.);
+#10 = IFCSIUNIT(*, .VOLUMEUNIT., $, .CUBIC_METRE.);
+#11 = IFCCONVERSIONBASEDUNIT(#12, .PLANEANGLEUNIT., 'DEGREE', #13);
+#12 = IFCDIMENSIONALEXPONENTS(0, 0, 0, 0, 0, 0, 0);
+#13 = IFCMEASUREWITHUNIT(IFCPLANEANGLEMEASURE(1.745E-2), #14);
+#14 = IFCSIUNIT(*, .PLANEANGLEUNIT., $, .RADIAN.);
+#15 = IFCSIUNIT(*, .SOLIDANGLEUNIT., $, .STERADIAN.);
+#16 = IFCSIUNIT(*, .MASSUNIT., $, .GRAM.);
+#17 = IFCSIUNIT(*, .TIMEUNIT., $, .SECOND.);
+#18 = IFCSIUNIT(*, .THERMODYNAMICTEMPERATUREUNIT., $, .DEGREE_CELSIUS.);
+#19 = IFCSIUNIT(*, .LUMINOUSINTENSITYUNIT., $, .LUMEN.);
+#20 = IFCGEOMETRICREPRESENTATIONCONTEXT($, 'Model', 3, 1.000E-5, #21, $);
+#21 = IFCAXIS2PLACEMENT3D(#22, $, $);
+#22 = IFCCARTESIANPOINT((0., 0., 0.));
+
+/* the site of the model */
+#23 = IFCSITE('3rNg_N55v4CRBpQVbZJoHB', #2, 'TU/e campus',
+      'The High Tech campus of the Eindhoven University of Technology', $, #24, $, $, .ELEMENT.,
+      (0, 0, 0), (0, 0, 0), $, $, $);
+
+ /* The origin of the model */
+#24 = IFCLOCALPLACEMENT($, #25);
+#25 = IFCAXIS2PLACEMENT3D(#26, #27, #28);
+#26 = IFCCARTESIANPOINT((0., 0., 0.));
+#27 = IFCDIRECTION((0., 0., 1.));
+#28 = IFCDIRECTION((1., 0., 0.));
+
+ENDSEC;
+END-ISO-10303-21;

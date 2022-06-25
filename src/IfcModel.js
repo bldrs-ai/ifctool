@@ -2,7 +2,7 @@
 /* This rule is for WebIFC API calls which use this style. */
 import WebIFC from 'web-ifc'
 import * as IfcHelper from './Ifc.js'
-import IfcTypesMap from './IfcTypesMap.js'
+import * as IfcTypesMap from './IfcTypesMap.js'
 
 
 /**
@@ -65,7 +65,7 @@ export default class IfcModel {
    * @return {Array<Element>} IFC Element
    */
   getEltsOfNamedType(typeName) {
-    const typeId = typeIdsByName[typeName]
+    const typeId = IfcTypesMap.idsByName[typeName]
     if (typeId == undefined) throw new Error('Unknown type name: ', typeName)
     const properties = this.webIfc.GetLineIDsWithType(this.modelId, typeId)
     const lines = []
@@ -82,6 +82,7 @@ export default class IfcModel {
    * @param {object} elt IFC Element
    */
   async deref(elt) {
+    console.error('DEREFING!')
     return await IfcHelper.deref(elt, this.webIfc)
   }
 
@@ -89,14 +90,5 @@ export default class IfcModel {
   /** Dispose of resources used by the WebIFC API. */
   close() {
     this.webIfc.CloseModel(this.modelId)
-  }
-}
-
-
-const typeIdsByName = {}
-for (const id in IfcTypesMap) {
-  if (Object.prototype.hasOwnProperty.call(IfcTypesMap, id)) {
-    const name = IfcTypesMap[id]
-    typeIdsByName[name] = parseInt(id)
   }
 }
