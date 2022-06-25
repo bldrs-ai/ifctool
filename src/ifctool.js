@@ -13,7 +13,7 @@ const USAGE = `Usage: node src/main.js <file.ifc> [--flag=value]*
   --types=t1[,t2,...]     Print the IFC elements of the given types, case insensitive
   --deref                 Dereference complex elements (work in progress)
   --out=json|csv          Print as JSON (default) or CSV.  See https://github.com/buildingSMART/ifcJSON
-    --fields=...          Format CSV, see: https://www.npmjs.com/package/json2csv
+    --fmt=...             Format CSV, see: https://www.npmjs.com/package/json2csv
   --omitExpressId         Omit expressID
   --omitNull              Omit fields will null values
   --verbose               Print diagnostic information to error
