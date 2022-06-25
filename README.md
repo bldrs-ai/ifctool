@@ -19,6 +19,8 @@ Usage: node src/main.js <file.ifc> [--flag[=value]]*
   --deref                 Dereference complex elements (work in progress)
   --out=json|csv          Print as JSON (default) or CSV.  See https://github.com/buildingSMART/ifcJSON
     --fields=...          Format CSV, see: https://www.npmjs.com/package/json2csv
+  --omitExpressId         Omit expressID
+  --omitNull              Omit fields will null values
   --verbose               Print diagnostic information to error
 
 Processing
@@ -56,20 +58,29 @@ e.g. with the included index.ifc:
 > node src/main.js index.ifc --elts=42
 web-ifc: 0.0.34 threading: 0
 {
-  "expressID": 42,
-  "type": 448429030,
-  "Dimensions": {
-    "type": 0
-  },
-  "UnitType": {
-    "type": 3,
-    "value": "TIMEUNIT"
-  },
-  "Prefix": null,
-  "Name": {
-    "type": 3,
-    "value": "SECOND"
-  }
+  "type": "ifcJSON",
+  "version": "0.0.1",
+  "originatingSystem": "IFC2JSON_js 3.0.1",
+  "preprocessorVersion": "web-ifc 0.0.34",
+  "time": "2022-06-25T14:21:26.462Z",
+  "data": [
+    {
+      "expressID": 42,
+      "type": 448429030,
+      "Dimensions": {
+        "type": 0
+      },
+      "UnitType": {
+        "type": 3,
+        "value": "TIMEUNIT"
+      },
+      "Prefix": null,
+      "Name": {
+        "type": 3,
+        "value": "SECOND"
+      }
+    }
+  ]
 }
 ```
 
@@ -80,3 +91,8 @@ web-ifc: 0.0.34 threading: 0
 "OverallHeight","OverallWidth"
 1.4,0.7000000000000001
 ```
+
+# Versions
+- 3.0.0: JSON output now includes header section, towards ifcJSON compliance.
+- 2.0.0: Flag changes: no more --elt. Instead --elts and --types now support lists
+- 1.0.0: Let's see how web-ifc's JSON looks!
