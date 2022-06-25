@@ -153,8 +153,6 @@ export async function extractIfcProps(model, flags) {
   } else if (flags.types) {
     ifcProps = flags.types.split(',').map((t) => model.getEltsOfNamedType(t.toUpperCase())).flat()
   } else {
-    // TODO(pablo): pass modelId as variable
-    console.error('getProperties: ', model.getProperties())
     ifcProps = await model.getProperties().getSpatialStructure(0, true)
   }
   return ifcProps

@@ -82,7 +82,6 @@ export default class IfcModel {
    * @param {object} elt IFC Element
    */
   async deref(elt) {
-    console.error('DEREFING!')
     return await IfcHelper.deref(elt, this.webIfc)
   }
 
