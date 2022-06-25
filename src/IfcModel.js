@@ -65,7 +65,7 @@ export default class IfcModel {
    * @return {Array<Element>} IFC Element
    */
   getEltsOfNamedType(typeName) {
-    const typeId = IfcTypesMap.idsByName[typeName]
+    const typeId = IfcTypesMap.getId(typeName)
     if (typeId == undefined) throw new Error('Unknown type name: ', typeName)
     const properties = this.webIfc.GetLineIDsWithType(this.modelId, typeId)
     const lines = []

@@ -39,6 +39,7 @@ export function disableDebug() {
  */
 const mockLog = {
   log: () => {},
+  error: () => {},
   warn: () => {},
   time: () => {},
   timeEnd: () => {},

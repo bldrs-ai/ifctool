@@ -151,7 +151,8 @@ export async function extractIfcProps(model, flags) {
       ifcProps = ifcProps[0]
     }
   } else if (flags.types) {
-    ifcProps = flags.types.split(',').map((t) => model.getEltsOfNamedType(t.toUpperCase())).flat()
+    const types = flags.types.split(',')
+    ifcProps = types.map((t) => model.getEltsOfNamedType(t.toUpperCase())).flat()
   } else {
     ifcProps = await model.getProperties().getSpatialStructure(0, true)
   }
@@ -166,7 +167,7 @@ export async function extractIfcProps(model, flags) {
  */
 export async function maybeDeref(model, ifcProps, flags) {
   if (flags.deref) {
-    ifcProps = model.deref(ifcProps)
+    ifcProps = await model.deref(ifcProps)
     if (Array.isArray(ifcProps)) {
       return await Promise.all(ifcProps.map((elt) => {
         return model.deref(elt)

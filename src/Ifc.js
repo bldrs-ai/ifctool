@@ -1,5 +1,6 @@
 import {stoi} from './strings.js'
 import * as IfcTypesMap from './IfcTypesMap.js'
+import debug from './debug.js'
 
 
 /**
@@ -140,18 +141,27 @@ export function decodeIFCString(ifcString) {
 
 
 /**
+ * @param {Object} ref
+ * @param {Object} webIfc
+ * @return {any}
+ */
+export async function derefasdf(ref, webIfc = null) {
+  return ref
+}
+
+
+/**
  * Recursive dereference of nested IFC. If ref.type is (1-4), viewer and typeValCb will not be used.
  * @param {Object} ref The element to dereference
  * @param {Object} webIfc IFC model
- * @param {function} typeValCb async callback for rendering sub-object
  * @return {any} A flattened version of the referenced element.  TODO(pablo): clarify type.
  */
 export async function deref(ref, webIfc = null) {
   if (ref === null || ref === undefined) {
     return 'null'
-    // throw new Error('Ref undefined or null: ', ref)
   }
   if (isTypeValue(ref)) {
+    debug().error('deref: isTypeValue')
     switch (ref.type) {
       case 1: return decodeIFCString(ref.value) // typically strings.
       case 2: return ref.value // no idea.
