@@ -79,8 +79,7 @@ web-ifc: 0.0.34 threading: 0
 ```
 
 ```
-> node src/main.js src/testdata/buildingSMART_TestSet_JAVA/7m900_tue_hello_wall_with_door.ifc \
-  --types=IFCDOOR --deref=basic --out=csv --fmt='["OverallHeight","OverallWidth"]'
+> node src/main.js src/testdata/IFC_2x3/7m900_tue_hello_wall_with_door.ifc --types=IFCDOOR --out=csv --deref --fmt='["OverallHeight","OverallWidth"]'
 web-ifc: 0.0.34 threading: 0
 "OverallHeight","OverallWidth"
 1.4,0.7000000000000001
