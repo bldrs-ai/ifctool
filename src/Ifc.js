@@ -160,45 +160,47 @@ export async function deref(ref, webIfc = null) {
   if (ref === null || ref === undefined) {
     return 'null'
   }
-  if (isTypeValue(ref)) {
-    debug().error('deref: isTypeValue')
-    switch (ref.type) {
-      case 1: return decodeIFCString(ref.value) // typically strings.
-      case 2: return ref.value // no idea.
-      case 3: return ref.value // no idea.. values are typically in CAPS
-      case 4: return ref.value // typically measures of space, time or angle.
-      case 5: {
-        // HACK(pablo): replace 0 below with modelId
-        const refId = stoi(ref.value)
-        return await deref(await webIfc.properties.getItemProperties(0, refId, true), webIfc)
-      }
-      default:
-        return 'Unknown type: ' + ref.value
-    }
-  } else if (Array.isArray(ref)) {
+  if (Array.isArray(ref)) {
     // Dereference array values.
     (async () => {
       for (let i = 0; i < ref.length; i++) {
         ref[i] = await deref(ref[i], webIfc)
       }
     })()
-  } else if (typeof ref === 'object') {
-    for (const objKey in ref) {
-      if (!Object.prototype.hasOwnProperty.call(ref, objKey)) {
-        continue
+  } else if (typeof ref === 'object') { // must be after array check
+    if (isTypeValue(ref)) {
+      debug().error('deref: isTypeValue')
+      switch (ref.type) {
+        case 1: return decodeIFCString(ref.value) // typically strings.
+        case 2: return ref.value // no idea.
+        case 3: return ref.value // no idea.. values are typically in CAPS
+        case 4: return ref.value // typically measures of space, time or angle.
+        case 5: {
+          // HACK(pablo): replace 0 below with modelId
+          const refId = stoi(ref.value)
+          return await deref(await webIfc.properties.getItemProperties(0, refId, true), webIfc)
+        }
+        default:
+          return 'Unknown type: ' + ref.value
       }
-      const val = ref[objKey]
-      // TODO: https://technical.buildingsmart.org/resources/ifcimplementationguidance/ifc-guid/
-      // if (objKey == 'GlobalId' && ref.expressID) {
-      //   const guid = webIfc.ifcGuidMap.get(parseInt(ref.expressID))
-      //   console.error(`#${ref.expressID} GlobalId: `, val, guid)
-      // }
-      if (objKey == 'type') {
-        ref[objKey] = IfcTypesMap.getName(val, true)
-      } else {
-        ref[objKey] = await deref(val, webIfc)
+    } else {
+      for (const objKey in ref) {
+        if (!Object.prototype.hasOwnProperty.call(ref, objKey)) {
+          continue
+        }
+        const val = ref[objKey]
+        // TODO: https://technical.buildingsmart.org/resources/ifcimplementationguidance/ifc-guid/
+        // if (objKey == 'GlobalId' && ref.expressID) {
+        //   const guid = webIfc.ifcGuidMap.get(parseInt(ref.expressID))
+        //   console.error(`#${ref.expressID} GlobalId: `, val, guid)
+        // }
+        if (objKey == 'type') {
+          ref[objKey] = IfcTypesMap.getName(val, true)
+        } else {
+          ref[objKey] = await deref(val, webIfc)
+        }
       }
     }
   }
-  return ref // typically number or string.
+  return ref // number or string.
 }
