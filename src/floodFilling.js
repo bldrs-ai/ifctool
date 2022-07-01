@@ -15,10 +15,9 @@ const box9 = new THREE.Box3(new THREE.Vector3(15, 9.7, 0), new THREE.Vector3(15.
 
 
 export const pointsAccepted = []
-const pointAcceptedInt = 0;
 const pointsVisited = []
 export const pointsDenied = []
-let generalIteration = 0;
+let pointsLeft = 0;
 
 export const boundingBoxesAll = [box1, box2, box3, box4,box5,box6, box7,box8,box9]
 
@@ -27,14 +26,16 @@ FloodFilling()
 export async function FloodFilling(){
     
     const voxelSize = 1
-    const maxThreshold = 700
+    const maxThreshold = 1000
 
     let IFCUnionBox = calculateIFCBoundingBox(boundingBoxesAll)
 
     SatisfyFirstRandom(pointsAccepted, voxelSize,IFCUnionBox, boundingBoxesAll)
 
+    pointsLeft ++;
+
     let intVis = 0
-    while((pointsAccepted.length<maxThreshold)&&(intVis<maxThreshold)){
+    while((pointsLeft>0)&&(intVis<maxThreshold)){
         try{
             CheckVoxelSurrounding(pointsAccepted[intVis], voxelSize,IFCUnionBox, boundingBoxesAll)
         }
@@ -205,20 +206,28 @@ function CheckVoxel(point = THREE.Vector3, voxelSize, mainBoundingBox = THREE.Bo
 
     if (intersect == false){
         pointsAccepted.push(point)
+        return true
     }
 }
 
 function CheckVoxelSurrounding(point = THREE.Vector3, voxelSize, mainBoundingBox = THREE.Box3, boundingBoxesAll = []){
     //LogP(point)
+    let successInt = 0
     let adjVoxel = adjacentVoxels(point, voxelSize)
         for (let i = 0; i<adjVoxel.length; i++){
+            let success = false;
             //console.log("reaches here in iteration: "+i+" in GenIteration: "+generalIteration)
             if (checkVisitBefore(adjVoxel[i], pointsVisited) == false) {
                 if (CheckPointInBoundingBox(adjVoxel[i], mainBoundingBox)){
-                    CheckVoxel(adjVoxel[i], voxelSize, mainBoundingBox, boundingBoxesAll)
+                    success = CheckVoxel(adjVoxel[i], voxelSize, mainBoundingBox, boundingBoxesAll)
+                    if (success==true) {
+                        successInt++
+                        pointsLeft++
+                    }
                 }
             }
         }
+        pointsLeft--
 }
 
 
