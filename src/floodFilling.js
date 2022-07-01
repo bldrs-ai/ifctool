@@ -14,14 +14,15 @@ const box8 = new THREE.Box3(new THREE.Vector3(0, 14.7, 0), new THREE.Vector3(20,
 const box9 = new THREE.Box3(new THREE.Vector3(15, 9.7, 0), new THREE.Vector3(15.3, 15, 5))
 
 
-export const pointsAccepted = []
-const pointsVisited = []
+export let pointsAccepted = []
+export let allPointsAccepted = []
+let pointsVisited = []
 export const pointsDenied = []
 let pointsLeft = 0;
 
 export const boundingBoxesAll = [box1, box2, box3, box4,box5,box6, box7,box8,box9]
 
-FloodFilling()
+RecursiveFloodFilling()
 
 export async function FloodFilling(){
     
@@ -30,7 +31,7 @@ export async function FloodFilling(){
 
     let IFCUnionBox = calculateIFCBoundingBox(boundingBoxesAll)
 
-    SatisfyFirstRandom(pointsAccepted, voxelSize,IFCUnionBox, boundingBoxesAll)
+    SatisfyFirstRandom(pointsAccepted, pointsVisited, voxelSize,IFCUnionBox, boundingBoxesAll)
 
     pointsLeft ++;
 
@@ -46,8 +47,23 @@ export async function FloodFilling(){
     }
 
     //LogAllP(pointsAccepted)
+    allPointsAccepted.push(pointsAccepted)
     return pointsAccepted
 
+}
+
+export function RecursiveFloodFilling(){
+    FloodFilling()
+    
+
+    pointsVisited = []
+    for (let i = 0; i<pointsAccepted.length; i++){
+        pointsVisited.push(pointsAccepted[i])
+    }
+
+    pointsAccepted = []
+    FloodFilling()
+    console.log(allPointsAccepted.length)
 }
 
 export function box3ToBoxGeo(box3 = THREE.Box3){
@@ -82,11 +98,13 @@ function LogBB (boundingBox = THREE.Box3){
 
 }
 
-function SatisfyFirstRandom(acceptedList, voxelSize,IFCUnionBox, boundingBoxesAll){
+function SatisfyFirstRandom(acceptedList, visted, voxelSize,IFCUnionBox, boundingBoxesAll){
         if (acceptedList.length != 1){
             let randomPoint = samplePointInBoundingBox(IFCUnionBox, voxelSize)
-            CheckVoxel(randomPoint, voxelSize,IFCUnionBox, boundingBoxesAll)
-            SatisfyFirstRandom(pointsAccepted, randomPoint, voxelSize,IFCUnionBox, boundingBoxesAll)
+            if (checkVisitBefore(randomPoint, visted)==false){
+                CheckVoxel(randomPoint, voxelSize,IFCUnionBox, boundingBoxesAll)
+            }
+            SatisfyFirstRandom(acceptedList, randomPoint, voxelSize,IFCUnionBox, boundingBoxesAll)
         }
         else{
             return acceptedList[0]
