@@ -18,7 +18,8 @@ export let pointsAccepted = []
 export let allPointsAccepted = []
 let pointsVisited = []
 export const pointsDenied = []
-let pointsLeft = 0;
+let pointsLeft = 0
+let FFAttempt = 0
 
 export const boundingBoxesAll = [box1, box2, box3, box4,box5,box6, box7,box8,box9]
 
@@ -31,7 +32,9 @@ export async function FloodFilling(){
 
     let IFCUnionBox = calculateIFCBoundingBox(boundingBoxesAll)
 
-    SatisfyFirstRandom(pointsAccepted, pointsVisited, voxelSize,IFCUnionBox, boundingBoxesAll)
+    let maxRandomEvent = 10
+
+    SatisfyFirstRandom(pointsAccepted, pointsVisited, voxelSize,IFCUnionBox, boundingBoxesAll,maxRandomEvent)
 
     pointsLeft ++;
 
@@ -48,23 +51,26 @@ export async function FloodFilling(){
 
     //LogAllP(pointsAccepted)
     allPointsAccepted.push(pointsAccepted)
+
+    pointsVisited = []
+    for (let i = 0; i<pointsAccepted.length; i++){
+        pointsVisited.push(pointsAccepted[i])
+    }
+    pointsAccepted = []
+    FFAttempt++
+
     return pointsAccepted
 
 }
 
 export function RecursiveFloodFilling(){
     FloodFilling()
-    
-
-    pointsVisited = []
-    for (let i = 0; i<pointsAccepted.length; i++){
-        pointsVisited.push(pointsAccepted[i])
+    while (FFAttempt<20){
+        FloodFilling()
     }
-
-    pointsAccepted = []
-    FloodFilling()
-    console.log(allPointsAccepted.length)
+    //console.log(allPointsAccepted.length)
 }
+
 
 export function box3ToBoxGeo(box3 = THREE.Box3){
     let vecSize = new THREE.Vector3
