@@ -1,6 +1,9 @@
 import {stoi} from './strings.js'
 import * as IfcTypesMap from './IfcTypesMap.js'
-import debug from './debug.js'
+import {getLogger} from './logger.js'
+
+
+const logger = getLogger('Ifc.js')
 
 
 /**
@@ -141,35 +144,29 @@ export function decodeIFCString(ifcString) {
 
 
 /**
- * @param {Object} ref
- * @param {Object} webIfc
- * @return {any}
+ * @param {Object} ref The element reference to dereference.
+ * @param {Object} webIfc The working ifc model.
+ * @param {string} indent For debug formatting.
+ * @return {any} The value the reference was referring to.
  */
-export async function derefasdf(ref, webIfc = null) {
-  return ref
-}
-
-
-/**
- * Recursive dereference of nested IFC. If ref.type is (1-4), viewer and typeValCb will not be used.
- * @param {Object} ref The element to dereference
- * @param {Object} webIfc IFC model
- * @return {any} A flattened version of the referenced element.  TODO(pablo): clarify type.
- */
-export async function deref(ref, webIfc = null) {
+export async function derefNew(ref, webIfc = null, indent='') {
+  logger.debug(indent + 'deref, in...')
   if (ref === null || ref === undefined) {
     return 'null'
   }
   if (Array.isArray(ref)) {
+    logger.debug(indent + '... array')
     // Dereference array values.
-    (async () => {
+    await (async () => {
       for (let i = 0; i < ref.length; i++) {
-        ref[i] = await deref(ref[i], webIfc)
+        ref[i] = await deref(ref[i], webIfc, indent + '  ')
       }
     })()
+    return ref
   } else if (typeof ref === 'object') { // must be after array check
+    logger.debug(indent + '... ref is object: expressID: ', ref.expressID)
     if (isTypeValue(ref)) {
-      debug().error('deref: isTypeValue')
+      logger.debug(indent + '.... and is simple typeValue')
       switch (ref.type) {
         case 1: return decodeIFCString(ref.value) // typically strings.
         case 2: return ref.value // no idea.
@@ -178,12 +175,15 @@ export async function deref(ref, webIfc = null) {
         case 5: {
           // HACK(pablo): replace 0 below with modelId
           const refId = stoi(ref.value)
-          return await deref(await webIfc.properties.getItemProperties(0, refId, true), webIfc)
+          return 'ref => ' + refId
+          // return await deref(await webIfc.properties.getItemProperties(0, refId, true), webIfc,
+          //      indent + '  ')
         }
         default:
-          return 'Unknown type: ' + ref.value
+          throw new Error('Unknown reference type: ' + ref)
       }
     } else {
+      logger.debug(indent + '... and is complex typeValue')
       for (const objKey in ref) {
         if (!Object.prototype.hasOwnProperty.call(ref, objKey)) {
           continue
@@ -196,11 +196,86 @@ export async function deref(ref, webIfc = null) {
         // }
         if (objKey == 'type') {
           ref[objKey] = IfcTypesMap.getName(val, true)
+        } else if (objKey == 'GlobalId') {
+          ref[objKey] = val.value
         } else {
-          ref[objKey] = await deref(val, webIfc)
+          logger.debug(indent + `.... recurse on key: ${objKey}`)
+          // ref[objKey] = await deref(val, webIfc, indent + '  ')
         }
       }
+      return ref
     }
   }
-  return ref // number or string.
+  logger.debug(indent + `simple value return`)
+  return ref // number or string, e.g. the value of Name or expressID
 }
+
+
+/**
+ * Recursive dereference of nested IFC. If ref.type is (1-4), viewer
+ * and typeValCb will not be used.
+ * @param {Object} ref The element reference to dereference.
+ * @param {Object} webIfc The working ifc model.
+ * @param {string} indent For debug formatting.
+ * @return {any} The value the reference was referring to.
+ */
+export async function deref(ref, webIfc = null, indent='') {
+  logger.debug(indent + 'deref, in...')
+  if (ref === null || ref === undefined) {
+    return 'null'
+  }
+  if (Array.isArray(ref)) {
+    logger.debug(indent + '... array')
+    // Dereference array values.
+    await (async () => {
+      for (let i = 0; i < ref.length; i++) {
+        ref[i] = await deref(ref[i], webIfc, indent + '  ')
+      }
+    })()
+    return ref
+  } else if (typeof ref === 'object') { // must be after array check
+    logger.debug(indent + '... ref is object: expressID: ', ref.expressID)
+    if (isTypeValue(ref)) {
+      logger.debug(indent + '.... and is simple typeValue')
+      switch (ref.type) {
+        case 1: return decodeIFCString(ref.value) // typically strings.
+        case 2: return ref.value // no idea.
+        case 3: return ref.value // no idea.. values are typically in CAPS
+        case 4: return ref.value // typically measures of space, time or angle.
+        case 5: {
+          // HACK(pablo): replace 0 below with modelId
+          const refId = stoi(ref.value)
+          return await deref(await webIfc.properties.getItemProperties(0, refId, true), webIfc)
+        }
+        default:
+          throw new Error('Unknown reference type: ' + ref)
+      }
+    } else {
+      logger.debug(indent + '... and is complex typeValue')
+      for (const objKey in ref) {
+        if (!Object.prototype.hasOwnProperty.call(ref, objKey)) {
+          continue
+        }
+        const val = ref[objKey]
+        // TODO: https://technical.buildingsmart.org/resources/ifcimplementationguidance/ifc-guid/
+        // if (objKey == 'GlobalId' && ref.expressID) {
+        //   const guid = webIfc.ifcGuidMap.get(parseInt(ref.expressID))
+        //   console.error(`#${ref.expressID} GlobalId: `, val, guid)
+        // }
+        if (objKey == 'type') {
+          ref[objKey] = IfcTypesMap.getName(val, true)
+        } else if (objKey == 'GlobalId') {
+          ref[objKey] = val.value
+        } else {
+          logger.debug(indent + `.... recurse on key: ${objKey}`)
+          ref[objKey] = await deref(val, webIfc, indent + '  ')
+        }
+      }
+      return ref
+    }
+  }
+  logger.debug(indent + `simple value: `, typeof ref, ref)
+  return ref // number or string, e.g. the value of Name or expressID
+}
+
+

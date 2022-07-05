@@ -1,9 +1,9 @@
 import fs from 'fs'
-import {parse} from 'json2csv'
 import IfcModel from './IfcModel.js'
-import {Exception} from './utils.js'
-import {getPackageVersion} from './version.js'
 import * as Arrays from './arrays.js'
+import {Exception, jsonToCsv} from './utils.js'
+import {getPackageVersion} from './version.js'
+import {getLogger, logLevels, setLogLevel} from './logger.js'
 
 
 const USAGE = `Usage: node src/main.js <file.ifc> [--flag=value]*
@@ -16,7 +16,8 @@ const USAGE = `Usage: node src/main.js <file.ifc> [--flag=value]*
     --fmt=...             Format CSV, see: https://www.npmjs.com/package/json2csv
   --omitExpressId         Omit expressID
   --omitNull              Omit fields will null values
-  --verbose               Print diagnostic information to error
+  --log=[enum =>]         Set log level to one of: {off,error,exception,info,debug,verbose}.
+                            default=info
 
 Processing
 
@@ -47,6 +48,9 @@ with custom formatting
     --fmt='["expressID","OverallWidth","OverallHeight"]'
 `
 
+const logger = getLogger('ifctool.js')
+
+
 /**
  * Main entry point for ifctool.
  * @param {Array<string>} args
@@ -54,27 +58,34 @@ with custom formatting
  */
 export async function processArgs(args) {
   if (args.length < 1) {
-    error(USAGE)
+    exceptionWithUsage(USAGE)
     return 1
   }
   let ifcProps = null
   try {
     const ifcFilename = args[0]
-    const rawFileData = fs.readFileSync(ifcFilename)
     const flags = parseFlags(args.slice(1))
+    if (flags.log) {
+      const logLevel = flags.log
+      if (!logLevels.includes(logLevel)) {
+        throw new Error('Log level must be one of: ' + JSON.stringify(logLevels))
+      }
+      setLogLevel(logLevel)
+    }
+    const rawFileData = fs.readFileSync(ifcFilename)
     ifcProps = await processFile(rawFileData, flags)
   } catch (e) {
     if (e instanceof Exception) {
-      exception(e)
+      exceptionWithUsage(e)
       return 1
     }
     if (e instanceof Error) {
-      error(e)
+      internalError(e)
       return 1
     }
   }
   if (ifcProps != null) {
-    log(ifcProps)
+    console.log(ifcProps)
   }
   return 0
 }
@@ -124,7 +135,7 @@ export async function processFile(fileData, flags={}) {
     ifcProps = format(ifcProps, flags)
   } catch (e) {
     if (e instanceof Exception) {
-      error(e)
+      internalError(e)
       return null
     }
     throw e
@@ -142,19 +153,47 @@ export async function extractIfcProps(model, flags) {
   if (flags.elts) {
     const strIds = flags.elts.split(',')
     const eltIds = Arrays.stoi(strIds)
-    ifcProps = eltIds.map((eltId) => model.getElt(eltId))
+    ifcProps = await Promise.all(eltIds.map(async (eltId) => (
+      await model.getProperties().getItemProperties(0, eltId, false)
+    )))
     const missing = removeMismatchedIds(eltIds, ifcProps)
-    if (missing.length > 0 && flags.verbose) { // TODO(pablo): add verbose logging
-      error('Missing elts:', missing)
+    if (missing.length > 0) {
+      logger.debug('Missing elts:', missing)
     }
     if (Array.isArray(ifcProps) && ifcProps.length == 1) {
       ifcProps = ifcProps[0]
     }
+    logger.debug('RAW PROPS: ', ifcProps)
   } else if (flags.types) {
     const types = flags.types.split(',')
     ifcProps = types.map((t) => model.getEltsOfNamedType(t.toUpperCase())).flat()
+  } else if (flags.spatialRoot) {
+    // TODO
   } else {
-    ifcProps = await model.getProperties().getSpatialStructure(0, true)
+    // eslint-disable-next-line new-cap
+    model.webIfc.CreateIfcGuidToExpressIdMapping(0)
+    const guidsContainer = model.webIfc.ifcGuidMap
+    let guidsMap = null
+    for (const entry of guidsContainer) {
+      if (typeof entry[1] == 'object') {
+        guidsMap = entry[1]
+        break
+      }
+    }
+    const guids = []
+    const expressIds = []
+    for (const entry of guidsMap) {
+      const val = entry[0]
+      if (typeof val == 'string') {
+        guids.push(val)
+      } else {
+        expressIds.push(val)
+      }
+    }
+    ifcProps = await Promise.all(expressIds.map(async (eltId) => (
+      await model.getProperties().getItemProperties(0, eltId, false)
+    )))
+    logger.debug('ifcProps: ', ifcProps)
   }
   return ifcProps
 }
@@ -185,36 +224,32 @@ export async function maybeDeref(model, ifcProps, flags) {
  * @return {object} ifcProps
  */
 export function format(ifcProps, flags) {
+  // TODO(pablo): better to pre-filter the data as it's being assembled instead of here.
+  ifcProps = JSON.parse(JSON.stringify(ifcProps, (k, v) => {
+    if (flags.omitExpressId && k == 'expressID') {
+      return undefined
+    }
+    if (flags.omitNull && (v === null || v == 'null')) {
+      return undefined
+    }
+    return v
+  }))
   let outputJson = true
   if (flags.out) {
     if (flags.out == 'csv') {
-      if (flags.fmt == undefined) {
-        ifcProps = parse(ifcProps)
-      } else {
-        const fields = JSON.parse(flags.fmt)
-        ifcProps = parse(ifcProps, {fields})
-      }
+      ifcProps = jsonToCsv(ifcProps, flags.omitNull, flags.fmt)
       outputJson = false
     } else if (flags.out == 'json') {
       // No-op, this is the default, but lets the user be explicit and
       // is backward compatible if we want to make it not default.
     } else {
-      error('Unsupported output format: ' + flags.out)
+      internalError('Unsupported output format: ' + flags.out)
       return null
     }
   }
   if (outputJson) {
-    const sep = flags.fmt || 2
     ifcProps = createHeader(ifcProps)
-    ifcProps = JSON.stringify(ifcProps, (k, v) => {
-      if (flags.omitExpressId && k == 'expressID') {
-        return undefined
-      }
-      if (flags.omitNull && (v === null || v == 'null')) {
-        return undefined
-      }
-      return v
-    }, sep)
+    ifcProps = JSON.stringify(ifcProps, null, 2)
   }
   return ifcProps
 }
@@ -229,10 +264,11 @@ function createHeader(ifcProps) {
   const header = {
     type: 'ifcJSON',
     version: '0.0.1',
+    schemaIdentifier: '<unknown; TODO(pablo)>',
     originatingSystem: `IFC2JSON_js ${version}`,
     preprocessorVersion: `web-ifc 0.0.34`,
-    time: new Date().toISOString(),
-    data: [ifcProps],
+    timeStamp: new Date().toISOString(),
+    data: Array.isArray(ifcProps) ? ifcProps : [ifcProps],
   }
   return header
 }
@@ -284,20 +320,15 @@ function removeMismatchedIds(ids, elts) {
 }
 
 
-const log = (...args) => {
-  console.log(...args)
+const exceptionWithUsage = (errOrMsg) => {
+  logger.warn('Invalid input: ', errOrMsg.message, 'Try --help to see usage instructions')
 }
 
 
-const exception = (errOrMsg) => {
-  console.error('Invalid input: ', errOrMsg.message)
-  console.error('Try --help to see usage instructions')
-}
-
-const error = (errOrMsg, ...rest) => {
+const internalError = (errOrMsg, ...rest) => {
   if (errOrMsg instanceof Error) {
-    console.error('Error: ', errOrMsg.message)
+    logger.error('Error: ', errOrMsg.message)
   } else {
-    console.error(errOrMsg, ...rest)
+    logger.error(errOrMsg, ...rest)
   }
 }

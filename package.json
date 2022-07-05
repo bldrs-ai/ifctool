@@ -23,14 +23,16 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@log4js-node/log4js-api": "^1.0.2",
     "json2csv": "^5.0.7",
+    "log4js": "^6.5.2",
     "web-ifc": "^0.0.35"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.4",
     "@babel/core": "^7.17.9",
     "@babel/eslint-parser": "^7.17.0",
     "@babel/plugin-syntax-import-assertions": "^7.16.7",
+    "@babel/preset-env": "^7.16.4",
     "esbuild": "^0.14.22",
     "eslint": "^8.14.0",
     "eslint-config-google": "^0.14.0",

@@ -1,7 +1,70 @@
+import {parse} from 'json2csv'
+
+
 /** Exceptions are runtime errors that should */
 export class Exception extends Error {
   /** @param {string} msg */
   constructor(msg) {
     super(msg)
+  }
+}
+
+
+/**
+ * @param {object} obj
+ * @param {array} fieldParts
+ * @return {boolean}
+ */
+export function fieldHasValue(obj, fieldParts) {
+  if (fieldParts.length == 1) {
+    const value = obj[fieldParts[0]]
+    if (value === null || value === undefined) {
+      return false
+    }
+    return true
+  } else {
+    const subFieldName = fieldParts[0]
+    const subFieldValue = obj[subFieldName]
+    if (subFieldValue === null || subFieldValue === undefined) {
+      return false
+    }
+    return fieldHasValue(subFieldValue, fieldParts.slice(1))
+  }
+}
+
+
+/**
+ * @param {object} json
+ * @param {boolean} omitEmptyFields
+ * @param {object} formatOpts
+ * @return {object|array} The CSV data. TODO(pablo): better type
+ */
+export function jsonToCsv(json, omitEmptyFields=false, formatOpts) {
+  const formatFields = formatOpts ? JSON.parse(formatOpts) : null
+  const transforms = [
+    (item) => {
+      if (omitEmptyFields) {
+        if (item === null || item === undefined) {
+          return null
+        }
+        if (formatFields) {
+          if (!Array.isArray(formatFields)) {
+            throw new Error('Format fields must be an array, got: ' + formatFields)
+          }
+          for (let i = 0; i < formatFields.length; i++) {
+            const fieldParts = formatFields[i].split('.')
+            if (!fieldHasValue(item, fieldParts)) {
+              return null
+            }
+          }
+        }
+      }
+      return item
+    },
+  ]
+  if (formatFields) {
+    return parse(json, {fields: formatFields, transforms})
+  } else {
+    return parse(json, {transforms})
   }
 }
