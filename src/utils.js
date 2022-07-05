@@ -10,6 +10,15 @@ export class Exception extends Error {
 }
 
 
+export const internalError = (errOrMsg, logger, ...rest) => {
+  if (errOrMsg instanceof Error) {
+    logger.error('Error: ', errOrMsg.message)
+  } else {
+    logger.error(errOrMsg, ...rest)
+  }
+}
+
+
 /**
  * @param {object} obj
  * @param {array} fieldParts
