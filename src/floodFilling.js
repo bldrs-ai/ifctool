@@ -19,6 +19,8 @@ export let pointsIntersected = []
 export let allPointsIntersected = []
 export let pointsEdge = []
 export let allPointsEdge = []
+export let geoEdges = []
+export let allGeoEdges = []
 let pointsVisited = []
 export let pointsDenied = []
 let pointsLeft = 0
@@ -52,6 +54,7 @@ export async function FloodFilling() {
   allPointsAccepted.push(pointsAccepted)
   allPointsIntersected.push(pointsIntersected)
   allPointsEdge.push(pointsEdge)
+  allGeoEdges.push(geoEdges)
 
   pointsVisited = []
   for (let i = 0; i<pointsAccepted.length; i++) {
@@ -61,6 +64,7 @@ export async function FloodFilling() {
   pointsIntersected = []
   pointsDenied = []
   pointsEdge = []
+  geoEdges = []
   FFAttempt++
 
   return pointsAccepted
@@ -204,6 +208,72 @@ function adjacentVoxels(point = THREE.Vector3, voxelSize) {
   return adjVoxel
 }
 
+function GeoFromPointAndDir(pointStart, adjIndex,voxelSize){
+    const a = voxelSize/2
+    const b = (Math.sqrt(3) * voxelSize)/2
+    let cornerPoints = []
+
+    if (adjIndex == 0){
+        cornerPoints[0] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(a, b, b))
+        cornerPoints[1] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(a, b, -b))
+        cornerPoints[2] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(a, -b, b))
+        cornerPoints[3] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(a, -b, -b))
+    }
+    if (adjIndex == 1){
+        cornerPoints[0] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-a, b, b))
+        cornerPoints[1] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-a, b, -b))
+        cornerPoints[2] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-a, -b, b))
+        cornerPoints[3] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-a, -b, -b))
+    }
+    if (adjIndex == 2){
+        cornerPoints[0] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(b, a, b))
+        cornerPoints[1] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(b, a, -b))
+        cornerPoints[2] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-b, a, b))
+        cornerPoints[3] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-b, a, -b))
+    }
+    if (adjIndex == 3){
+        cornerPoints[0] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(b, -a, b))
+        cornerPoints[1] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(b, -a, -b))
+        cornerPoints[2] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-b, -a, b))
+        cornerPoints[3] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-b, -a, -b))
+    }
+    if (adjIndex == 4){
+        cornerPoints[0] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(b, b, a))
+        cornerPoints[1] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-b, b, a))
+        cornerPoints[2] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(b, -b, a))
+        cornerPoints[3] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-b, -b, a))
+    }
+    if (adjIndex == 5){
+        cornerPoints[0] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(b, b, -a))
+        cornerPoints[1] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-b, b, -a))
+        cornerPoints[2] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(b, -b, -a))
+        cornerPoints[3] = new THREE.Vector3().addVectors(pointStart, new THREE.Vector3(-b, -b, -a))
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    const vertices = new Float32Array( [
+        cornerPoints[0].x, cornerPoints[0].y,  cornerPoints[0].z,
+        cornerPoints[1].x, cornerPoints[1].y,  cornerPoints[1].z,
+        cornerPoints[2].x, cornerPoints[2].y,  cornerPoints[2].z,
+
+        cornerPoints[1].x, cornerPoints[1].y,  cornerPoints[1].z,
+        cornerPoints[2].x, cornerPoints[2].y,  cornerPoints[2].z,
+        cornerPoints[3].x, cornerPoints[3].y,  cornerPoints[3].z,
+    ] );
+    geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+
+    ///TODO
+    return geometry
+
+}
+
+function meshBetweenPoints (pointStart, pointEnd){
+    const vecBetween = new THREE.Vector3(pointEnd.x-pointStart.x,pointEnd.y-pointStart.y,pointEnd.z-pointStart.z)
+    const vecLenght = vecBetween.length()
+}
+
+
+
 function CheckVoxel(point = THREE.Vector3, voxelSize, mainBoundingBox = THREE.Box3, boundingBoxesAll = []) {
   
   if (checkVisitBefore(point, pointsVisited)){
@@ -260,8 +330,9 @@ function CheckVoxelSurrounding(point = THREE.Vector3, voxelSize, mainBoundingBox
         }
         if (success==0){
             if (checkVisitBefore(point, pointsEdge)==false){
-                pointsEdge.push(point)
+                pointsEdge.push(point)           
             }
+            geoEdges.push(GeoFromPointAndDir(point,i,voxelSize))   
         }
       }
     
