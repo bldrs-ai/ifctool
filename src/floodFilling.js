@@ -17,14 +17,16 @@ export let pointsAccepted = []
 export let allPointsAccepted = []
 export let pointsIntersected = []
 export let allPointsIntersected = []
+export let pointsEdge = []
+export let allPointsEdge = []
 let pointsVisited = []
-export const pointsDenied = []
+export let pointsDenied = []
 let pointsLeft = 0
 let FFAttempt = 0
 
 const FFmaxAttempt = 20
 const voxelSize = 1
-const maxThreshold = 1000
+const maxThreshold = 10000
 
 
 export const boundingBoxesAll = [box1, box2, box3, box4, box5, box6, box7, box8, box9]
@@ -49,6 +51,7 @@ export async function FloodFilling() {
 
   allPointsAccepted.push(pointsAccepted)
   allPointsIntersected.push(pointsIntersected)
+  allPointsEdge.push(pointsEdge)
 
   pointsVisited = []
   for (let i = 0; i<pointsAccepted.length; i++) {
@@ -56,6 +59,8 @@ export async function FloodFilling() {
   }
   pointsAccepted = []
   pointsIntersected = []
+  pointsDenied = []
+  pointsEdge = []
   FFAttempt++
 
   return pointsAccepted
@@ -200,27 +205,40 @@ function adjacentVoxels(point = THREE.Vector3, voxelSize) {
 }
 
 function CheckVoxel(point = THREE.Vector3, voxelSize, mainBoundingBox = THREE.Box3, boundingBoxesAll = []) {
-  pointsVisited.push(point)
-
-  const voxelMin = new THREE.Vector3().addVectors(point, new THREE.Vector3(-voxelSize/2, -voxelSize/2, -voxelSize/2))
-  const voxelMax = new THREE.Vector3().addVectors(point, new THREE.Vector3(voxelSize/2, voxelSize/2, voxelSize/2))
-
-  const voxel = new THREE.Box3(voxelMin, voxelMax)
-
-  let intersect = false
-
-  for (let i = 0; i<boundingBoxesAll.length; i++) {
-    if (voxel.intersectsBox(boundingBoxesAll[i])) {
-      pointsDenied.push(point)
-      intersect = true
-      return 0
+  
+  if (checkVisitBefore(point, pointsVisited)){
+    if (checkVisitBefore(point, pointsIntersected)){
+        return 0
+    }
+    else{
+        return 2
     }
   }
+  else{
+    pointsVisited.push(point)
 
-  if (intersect == false) {
-    pointsAccepted.push(point)
-    return 1
+    const voxelMin = new THREE.Vector3().addVectors(point, new THREE.Vector3(-voxelSize/2, -voxelSize/2, -voxelSize/2))
+    const voxelMax = new THREE.Vector3().addVectors(point, new THREE.Vector3(voxelSize/2, voxelSize/2, voxelSize/2))
+  
+    const voxel = new THREE.Box3(voxelMin, voxelMax)
+  
+    let intersect = false
+  
+    for (let i = 0; i<boundingBoxesAll.length; i++) {
+      if ((voxel.intersectsBox(boundingBoxesAll[i])) || (checkVisitBefore(point, pointsIntersected))) {
+        pointsIntersected.push(point)
+        intersect = true
+        return 0
+      }
+    }
+  
+    if (intersect == false) {
+      pointsAccepted.push(point)
+      return 1
+    }
   }
+  
+
   // SUGGESTION: 
   //INTERSECT SHOULD BE 0
   //POINT ACCEPTED SHOULD BE 1
@@ -234,7 +252,6 @@ function CheckVoxelSurrounding(point = THREE.Vector3, voxelSize, mainBoundingBox
   for (let i = 0; i<adjVoxel.length; i++) {
     let success = 0
     // console.log("reaches here in iteration: "+i+" in GenIteration: "+generalIteration)
-    if (checkVisitBefore(adjVoxel[i], pointsVisited) == false) {
       if (CheckPointInBoundingBox(adjVoxel[i], mainBoundingBox)) {
         success = CheckVoxel(adjVoxel[i], voxelSize, mainBoundingBox, boundingBoxesAll)
         if (success==1) {
@@ -242,12 +259,12 @@ function CheckVoxelSurrounding(point = THREE.Vector3, voxelSize, mainBoundingBox
           pointsLeft++
         }
         if (success==0){
-            if (checkVisitBefore(point, pointsIntersected)==false){
-                pointsIntersected.push(point)
+            if (checkVisitBefore(point, pointsEdge)==false){
+                pointsEdge.push(point)
             }
         }
       }
-    }
+    
   }
   pointsLeft--
 }
