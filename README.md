@@ -2,18 +2,20 @@
 Command line tool for working with IFC models.  It extracts IFC elements by ID or types (via [web-ifc](https://github.com/tomvandig/web-ifc)), and exports as JSON or CSV (via [json2csv](https://www.npmjs.com/package/json2csv)).
 
 ## Via npx
-Use [NPX](https://nodejs.dev/learn/the-npx-nodejs-package-runner) to run ifctool without cloning this repo.
+Use [NPX](https://nodejs.dev/learn/the-npx-nodejs-package-runner) to run ifctool without cloning this repo.  Always prefer @latest to avoid [npx cacheing issues](https://github.com/npm/cli/issues/2329).
 ```
-> npx @bldrs-ai/ifctool model.ifc
+> npx @bldrs-ai/ifctool@latest model.ifc
+```
+or run from source:
+```
+> node src/main.js model.ifc
 ```
 
 ## Usage
-
 ```
-> node src/main.js
-Usage: node src/main.js <file.ifc> [--flag[=value]]*
-  <command> may be one of:
+usage: ifctool <file.ifc>
 
+options:
   --elts=id1[,id2,...]    Print the IFC elements with the given IDs
   --types=t1[,t2,...]     Print the IFC elements of the given types, case insensitive
   --deref                 Dereference complex elements (work in progress)
@@ -21,22 +23,27 @@ Usage: node src/main.js <file.ifc> [--flag[=value]]*
     --fmt=...             Format CSV, see: https://www.npmjs.com/package/json2csv
   --omitExpressId         Omit expressID
   --omitNull              Omit fields will null values
-  --verbose               Print diagnostic information to error
+  --log=[enum =>]         Set log level to one of: {off,error,exception,info,debug,verbose}.
+                            default=info
+  --version               Print the version of this tool, same as in package.json.
+  --help                  Print these usage instructions.
 
-Processing
+Version: ifctool 4.1.2
+
+# Processing
 
 The tool uses web-ifc to extract data from the IFC.
 See https://github.com/tomvandig/web-ifc
 
 
-ifcJSON
+## ifcJSON
 
 The output JSON is the result of JSON.stringify, with post-processing
 to coerce web-ifc's object representation to ifcJSON.  This is a Work
 in Progress.
 
 
-EXAMPLES
+# Examples
 
 Print the root element of the model in JSON:
 
@@ -48,7 +55,7 @@ with dereferncing and output as CSV
 
 with custom formatting
 
-  node src/main.js model.ifc --types=IFCWALL,IFCWINDOW --out=csv --deref \
+  node src/main.js model.ifc --types=IFCWALL,IFCWINDOW --out=csv \
     --fmt='["expressID","OverallWidth","OverallHeight"]'
 ```
 
@@ -56,7 +63,6 @@ e.g. with the included index.ifc:
 
 ```
 > node src/main.js index.ifc --elts=5 --deref --omitNull
-web-ifc: 0.0.34 threading: 0
 {
   "type": "ifcJSON",
   "version": "0.0.1",
@@ -80,13 +86,13 @@ web-ifc: 0.0.34 threading: 0
 
 ```
 > node src/main.js src/testdata/IFC_2x3/7m900_tue_hello_wall_with_door.ifc --types=IFCDOOR --out=csv --deref --fmt='["OverallHeight","OverallWidth"]'
-web-ifc: 0.0.34 threading: 0
 "OverallHeight","OverallWidth"
 1.4,0.7000000000000001
 ```
 
 # Versions
 Following (semver)[https://semver.org/], backwards-incompatible API changes use a new major version number.
+- 4.x: Full extract now includes all top-level elts with globalIds.  Better arg checking and error logging. 
 - 3.x: JSON output now includes header section, towards ifcJSON compliance.
 - 2.x: Flag changes: no more --elt. Instead --elts and --types now support lists
 - 1.x: Let's see how web-ifc's JSON looks!
