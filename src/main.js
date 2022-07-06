@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
 
-const USAGE = `Usage: node src/main.js <file.ifc> [--flag=value]*
-  <command> may be one of:
+import {getPackageVersion} from './version.js'
 
+
+const USAGE = `usage: ifctool <file.ifc>
+
+options:
   --elts=id1[,id2,...]    Print the IFC elements with the given IDs
   --types=t1[,t2,...]     Print the IFC elements of the given types, case insensitive
   --deref                 Dereference complex elements (work in progress)
@@ -13,21 +16,25 @@ const USAGE = `Usage: node src/main.js <file.ifc> [--flag=value]*
   --omitNull              Omit fields will null values
   --log=[enum =>]         Set log level to one of: {off,error,exception,info,debug,verbose}.
                             default=info
+  --version               Print the version of this tool, same as in package.json.
+  --help                  Print these usage instructions.
 
-Processing
+Version: ifctool ${getPackageVersion()}
+
+# Processing
 
 The tool uses web-ifc to extract data from the IFC.
 See https://github.com/tomvandig/web-ifc
 
 
-ifcJSON
+## ifcJSON
 
 The output JSON is the result of JSON.stringify, with post-processing
 to coerce web-ifc's object representation to ifcJSON.  This is a Work
 in Progress.
 
 
-EXAMPLES
+# Examples
 
 Print the root element of the model in JSON:
 
@@ -62,7 +69,7 @@ import fs from 'fs'
 import {getLogger, logLevels, setLogLevel} from './logger.js'
 import {parseFlags} from './flags.js'
 import {processIfcBuffer} from './ifctool.js'
-import {Exception, internalError} from './utils.js'
+import {Exception} from './utils.js'
 
 
 const logger = getLogger('main.js')
@@ -75,42 +82,51 @@ const logger = getLogger('main.js')
  * @return {number} 0 on success, 1 on error.
  */
 export async function processArgs(args, print=console.log) {
-  if (args.length < 1) {
-    exceptionWithUsage(USAGE)
-    return 1
-  }
   let ifcProps = null
   try {
-    const ifcFilename = args[0]
-    const flags = parseFlags(args.slice(1))
+    if (args.length < 1) {
+      logger.warn('Filename required')
+      return 1
+    }
+    let ifcFilename = null
+    if (!args[0].startsWith('--')) {
+      ifcFilename = args.shift()
+      if (!fs.existsSync(ifcFilename) || !fs.lstatSync(ifcFilename).isFile()) {
+        logger.warn('First arg is not file:', ifcFilename)
+        return 1
+      }
+    }
+    const flags = parseFlags(args)
     if (flags.log) {
       const logLevel = flags.log
       if (!logLevels.includes(logLevel)) {
-        throw new Error('Log level must be one of: ' + JSON.stringify(logLevels))
+        logger.warn('Log level must be one of: ' + logLevels.join(', '))
+        return 1
       }
       setLogLevel(logLevel)
+    }
+    if (flags.version) {
+      print(getPackageVersion())
+      return 0
+    }
+    if (flags.help) {
+      print(USAGE)
+      return 0
     }
     const rawFileData = fs.readFileSync(ifcFilename)
     ifcProps = await processIfcBuffer(rawFileData, flags)
   } catch (e) {
     if (e instanceof Exception) {
-      exceptionWithUsage(e)
-      return 1
+      logger.warn(e)
+    } else {
+      logger.error(e)
     }
-    if (e instanceof Error) {
-      internalError(e, logger)
-      return 1
-    }
+    return 1
   }
   if (ifcProps != null) {
     print(ifcProps)
   }
   return 0
-}
-
-
-const exceptionWithUsage = (errOrMsg) => {
-  logger.warn('Invalid input: ', errOrMsg.message, 'Try --help to see usage instructions')
 }
 
 
