@@ -98,7 +98,7 @@ export async function processArgs(args, print=console.log) {
       return 1
     }
     if (e instanceof Error) {
-      internalError(e)
+      internalError(e, logger)
       return 1
     }
   }
