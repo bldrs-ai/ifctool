@@ -1,119 +1,15 @@
-import fs from 'fs'
 import IfcModel from './IfcModel.js'
 import * as Arrays from './arrays.js'
-import {Exception, jsonToCsv} from './utils.js'
+import {
+  Exception,
+  internalError,
+  jsonToCsv,
+} from './utils.js'
 import {getPackageVersion} from './version.js'
-import {getLogger, logLevels, setLogLevel} from './logger.js'
+import {getLogger} from './logger.js'
 
-
-const USAGE = `Usage: node src/main.js <file.ifc> [--flag=value]*
-  <command> may be one of:
-
-  --elts=id1[,id2,...]    Print the IFC elements with the given IDs
-  --types=t1[,t2,...]     Print the IFC elements of the given types, case insensitive
-  --deref                 Dereference complex elements (work in progress)
-  --out=json|csv          Print as JSON (default) or CSV.  See https://github.com/buildingSMART/ifcJSON
-    --fmt=...             Format CSV, see: https://www.npmjs.com/package/json2csv
-  --omitExpressId         Omit expressID
-  --omitNull              Omit fields will null values
-  --log=[enum =>]         Set log level to one of: {off,error,exception,info,debug,verbose}.
-                            default=info
-
-Processing
-
-The tool uses web-ifc to extract data from the IFC.
-See https://github.com/tomvandig/web-ifc
-
-
-ifcJSON
-
-The output JSON is the result of JSON.stringify, with post-processing
-to coerce web-ifc's object representation to ifcJSON.  This is a Work
-in Progress.
-
-
-EXAMPLES
-
-Print the root element of the model in JSON:
-
-  node src/main.js model.ifc
-
-with dereferncing and output as CSV
-
-  node src/main.js model.ifc --deref --out=csv
-
-with custom formatting
-
-  node src/main.js model.ifc --types=IFCWALL,IFCWINDOW --out=csv \\
-    --fmt='["expressID","OverallWidth","OverallHeight"]'
-`
 
 const logger = getLogger('ifctool.js')
-
-
-/**
- * Main entry point for ifctool.
- * @param {Array<string>} args
- * @return {number} 0 on success, 1 on error.
- */
-export async function processArgs(args) {
-  if (args.length < 1) {
-    exceptionWithUsage(USAGE)
-    return 1
-  }
-  let ifcProps = null
-  try {
-    const ifcFilename = args[0]
-    const flags = parseFlags(args.slice(1))
-    if (flags.log) {
-      const logLevel = flags.log
-      if (!logLevels.includes(logLevel)) {
-        throw new Error('Log level must be one of: ' + JSON.stringify(logLevels))
-      }
-      setLogLevel(logLevel)
-    }
-    const rawFileData = fs.readFileSync(ifcFilename)
-    ifcProps = await processFile(rawFileData, flags)
-  } catch (e) {
-    if (e instanceof Exception) {
-      exceptionWithUsage(e)
-      return 1
-    }
-    if (e instanceof Error) {
-      internalError(e)
-      return 1
-    }
-  }
-  if (ifcProps != null) {
-    console.log(ifcProps)
-  }
-  return 0
-}
-
-
-/**
- * @param {Array<string>} args
- * @return {object}
- */
-export function parseFlags(args) {
-  const flags = {}
-  for (let i = 0; i < args.length; i++) {
-    let flag = args[i]
-    if (!flag.startsWith('--')) {
-      throw new Exception('Trailing arguments must be in format: --flag or --flag=value')
-    }
-    flag = flag.substring(2)
-    let name = flag
-    let value = true
-    if (flag.indexOf('=') != -1) {
-      const parts = flag.split('=')
-      name = parts[0]
-      value = parts[1]
-    }
-    flags[name] = value
-  }
-  return flags
-}
 
 
 /**
@@ -122,7 +18,7 @@ export function parseFlags(args) {
  * @param {function} error
  * @return {object} ifcProps
  */
-export async function processFile(fileData, flags={}) {
+export async function processIfcBuffer(fileData, flags={}) {
   const model = new IfcModel()
   await model.open(fileData)
   let ifcProps = null
@@ -135,7 +31,7 @@ export async function processFile(fileData, flags={}) {
     ifcProps = format(ifcProps, flags)
   } catch (e) {
     if (e instanceof Exception) {
-      internalError(e)
+      internalError(e, logger)
       return null
     }
     throw e
@@ -243,7 +139,7 @@ export function format(ifcProps, flags) {
       // No-op, this is the default, but lets the user be explicit and
       // is backward compatible if we want to make it not default.
     } else {
-      internalError('Unsupported output format: ' + flags.out)
+      internalError('Unsupported output format: ' + flags.out, logger)
       return null
     }
   }
@@ -317,18 +213,4 @@ function removeMismatchedIds(ids, elts) {
     i++
   }
   return missing
-}
-
-
-const exceptionWithUsage = (errOrMsg) => {
-  logger.warn('Invalid input: ', errOrMsg.message, 'Try --help to see usage instructions')
-}
-
-
-const internalError = (errOrMsg, ...rest) => {
-  if (errOrMsg instanceof Error) {
-    logger.error('Error: ', errOrMsg.message)
-  } else {
-    logger.error(errOrMsg, ...rest)
-  }
 }
