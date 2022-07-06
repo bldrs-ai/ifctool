@@ -91,7 +91,7 @@ e.g. with the included index.ifc:
 ```
 
 # Versions
-Following (semver)[https://semver.org/], backwards-incompatible API changes use a new major version number.
+Following [semver](https://semver.org/), backwards-incompatible API changes use a new major version number.
 - 4.x: Full extract now includes all top-level elts with globalIds.  Better arg checking and error logging. 
 - 3.x: JSON output now includes header section, towards ifcJSON compliance.
 - 2.x: Flag changes: no more --elt. Instead --elts and --types now support lists
