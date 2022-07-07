@@ -7,6 +7,7 @@ import {
 } from './utils.js'
 import {getPackageVersion} from './version.js'
 import {getLogger} from './logger.js'
+import * as IfcTypesMap from './IfcTypesMap.js'
 
 
 const logger = getLogger('ifctool.js')
@@ -86,9 +87,18 @@ export async function extractIfcProps(model, flags) {
         expressIds.push(val)
       }
     }
+    logger.info('Model GUIDS: ', guids)
     ifcProps = await Promise.all(expressIds.map(async (eltId) => (
       await model.getProperties().getItemProperties(0, eltId, false)
     )))
+    // Add PropertySets
+    for (const eltId of expressIds) {
+      const pset = await model.getProperties().getPropertySets(0, eltId, true)
+      if (pset.length > 0) {
+        ifcProps = ifcProps.concat(pset)
+      }
+    }
+    ifcProps = ifcProps.concat(await model.getProperties().getAllItemsOfType(0, IfcTypesMap.getId('IFCRELDEFINESBYPROPERTIES'), true))
     logger.debug('ifcProps: ', ifcProps)
   }
   return ifcProps

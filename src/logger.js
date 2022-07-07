@@ -3,10 +3,10 @@ import log4js from 'log4js'
 
 const loggers = {}
 export const logLevels = ['off', 'mark', 'fatal', 'error', 'warn', 'info', 'debug', 'trace']
-let DEFAULT_LEVEL = 'info'
+let DEFAULT_LEVEL = 'off'
 log4js.configure({
   appenders: {
-    err: {type: 'stderr'},
+    err: {type: 'stderr', layout: {type: 'basic'}},
   },
   categories: {
     default: {appenders: ['err'], level: 'trace', enableCallStack: true},

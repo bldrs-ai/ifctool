@@ -245,7 +245,15 @@ export async function deref(ref, webIfc = null, indent='') {
         case 5: {
           // HACK(pablo): replace 0 below with modelId
           const refId = stoi(ref.value)
-          return await deref(await webIfc.properties.getItemProperties(0, refId, true), webIfc)
+          const refElt = await deref(await webIfc.properties.getItemProperties(0, refId, true), webIfc)
+          // not recursing deref on global elt
+          if (refElt.GlobalId) {
+            return {
+              type: refElt.type,
+              ref: refElt.GlobalId,
+            }
+          }
+          return refElt
         }
         default:
           throw new Error('Unknown reference type: ' + ref)
@@ -264,7 +272,7 @@ export async function deref(ref, webIfc = null, indent='') {
         // }
         if (objKey == 'type') {
           ref[objKey] = IfcTypesMap.getName(val, true)
-        } else if (objKey == 'GlobalId') {
+        } else if (objKey == 'GlobalId' && val.type == 1) {
           ref[objKey] = val.value
         } else {
           logger.debug(indent + `.... recurse on key: ${objKey}`)
