@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 
-import {getPackageVersion} from './version.js'
+import {getPackageVersion} from '@bldrs-ai/ifclib/src/version.js'
 
 
 const USAGE = `usage: ifctool <file.ifc>
@@ -66,13 +66,25 @@ console.log = filterLogger
 
 
 import fs from 'fs'
-import {getLogger, logLevels, setLogLevel} from './logger.js'
+import log4js from 'log4js'
+import 'log4js/lib/appenders/stderr.js'
 import {parseFlags} from './flags.js'
-import {processIfcBuffer} from './ifctool.js'
-import {Exception} from './utils.js'
+import {processIfcBuffer} from '@bldrs-ai/ifclib'
+import {logLevels, setLogLevel} from '@bldrs-ai/ifclib/src/logger.js'
+import {Exception} from '@bldrs-ai/ifclib/src/utils.js'
 
 
-const logger = getLogger('main.js')
+log4js.configure({
+  appenders: {
+    err: {type: 'console', layout: {type: 'basic'}},
+  },
+  categories: {
+    default: {appenders: ['err'], level: 'trace', enableCallStack: true},
+  },
+})
+
+
+const logger = log4js.getLogger('main.js')
 
 
 /**

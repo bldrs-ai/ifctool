@@ -1,9 +1,12 @@
 {
-  "name": "@bldrs-ai/ifctool",
-  "version": "5.0.1",
-  "main": "src/ifctool.js",
-  "bin": "src/main.js",
+  "name": "@bldrs-ai/ifctool-root",
+  "private": true,
+  "version": "5.2.2",
   "homepage": "https://github.com/bldrs-ai/ifctool",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bldrs-ai/ifctool.git"
+  },
   "bugs": {
     "url": "https://github.com/bldrs-ai/ifctool/issues"
   },
@@ -13,20 +16,20 @@
     "csv",
     "cli"
   ],
+  "workspaces": [
+    "tool",
+    "lib"
+  ],
   "scripts": {
-    "build": "node config/esbuild.js",
-    "lint": "yarn eslint src",
-    "ifctool": "node src/main.js",
-    "ifctool-dist": "node dist/ifctool.js",
+    "build-dist": "node config/esbuild.js",
+    "build-docs": "rm -rf docs/* && cp -r web/* docs",
+    "build-web": "cp -r dist/{ifclib,web-ifc}.* docs",
+    "build": "yarn build-dist && yarn build-docs && yarn build-web",
+    "lint": "yarn eslint lib",
     "test": "node --experimental-vm-modules $(yarn bin jest)",
+    "copy-wasm": "cp node_modules/web-ifc/*.wasm dist",
     "precommit": "yarn lint && yarn test",
     "prepare": "husky install"
-  },
-  "dependencies": {
-    "@log4js-node/log4js-api": "^1.0.2",
-    "json2csv": "^5.0.7",
-    "log4js": "^6.5.2",
-    "web-ifc": "^0.0.35"
   },
   "devDependencies": {
     "@babel/core": "^7.17.9",
@@ -55,10 +58,6 @@
     "setupFilesAfterEnv": []
   },
   "description": "Command line tool for working with IFC models.  It extracts IFC elements by ID or types, and exports as JSON or CSV (via [json2csv](https://www.npmjs.com/package/json2csv)).",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bldrs-ai/ifctool.git"
-  },
   "author": "info@bldrs.ai",
   "license": "MIT"
 }

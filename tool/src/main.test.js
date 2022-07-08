@@ -47,7 +47,7 @@ describe('main', () => {
       capturedOut = jsonOut
     }
     const resultCode = await processArgs(
-        ['./src/testdata/IFC_2x3/7m900_tue_hello_wall_with_door.ifc', '--elts=1'],
+        ['./lib/src/testdata/IFC_2x3/7m900_tue_hello_wall_with_door.ifc', '--elts=1'],
         mockPrint)
     expect(capturedOut).not.toBe(null)
     const ifcJson = JSON.parse(capturedOut)
