@@ -21,9 +21,13 @@
     "lib"
   ],
   "scripts": {
-    "build": "node config/esbuild.js",
+    "build-dist": "node config/esbuild.js",
+    "build-docs": "rm -rf docs/* && cp -r web/* docs",
+    "build-web": "cp -r dist/{ifclib,web-ifc}.* docs",
+    "build": "yarn build-dist && yarn build-docs && yarn build-web",
     "lint": "yarn eslint lib",
     "test": "node --experimental-vm-modules $(yarn bin jest)",
+    "copy-wasm": "cp node_modules/web-ifc/*.wasm dist",
     "precommit": "yarn lint && yarn test",
     "prepare": "husky install"
   },

@@ -1,7 +1,7 @@
 import esbuild from 'esbuild'
 
 
-const entry = 'tool/src/main.js'
+const entry = 'lib/src/ifctool.js'
 const buildDir = 'dist'
 const build = {
   entryPoints: [entry],
@@ -11,10 +11,15 @@ const build = {
   // We use code identifiers e.g. in ItemProperties for their names
   keepNames: true,
   sourcemap: true,
-  outdir: buildDir,
+  outfile: buildDir + '/ifclib.js',
   format: 'esm',
-  platform: 'node',
-  target: ['node16'],
+  platform: 'browser',
+  target: ['chrome58', 'firefox57', 'safari11', 'edge18'],
+  external: [
+    './node_modules/log4js/*',
+    './node_modules/fs-extra/*',
+    './node_modules/graceful-fs/*',
+  ],
 }
 
 esbuild
