@@ -7,7 +7,11 @@ export async function convert() {
   const utf8Encode = new TextEncoder()
   const ifc = ifcElt.value
   const buf = utf8Encode.encode(ifc)
-  const ifcProps = await ifclib.processIfcBuffer(buf)
+  const ifcProps = await ifclib.processIfcBuffer(buf, {
+    deref: true,
+    omitNull: true,
+    elts: '20',
+  })
   jsonElt.value = ifcProps
 }
 
