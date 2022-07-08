@@ -13,6 +13,7 @@ or run from source:
 
 ## Usage
 ```
+> npx @bldrs-ai/ifctool@latest --help
 usage: ifctool <file.ifc>
 
 options:
@@ -28,7 +29,7 @@ options:
   --version               Print the version of this tool, same as in package.json.
   --help                  Print these usage instructions.
 
-Version: ifctool 4.1.2
+Version: ifctool 5.0.1
 
 # Processing
 
@@ -92,6 +93,7 @@ e.g. with the included index.ifc:
 
 # Versions
 Following [semver](https://semver.org/), backwards-incompatible API changes use a new major version number.
+- 5.x: Full extract now includes PropertySets.
 - 4.x: Full extract now includes all top-level elts with globalIds.  Better arg checking and error logging. 
 - 3.x: JSON output now includes header section, towards ifcJSON compliance.
 - 2.x: Flag changes: no more --elt. Instead --elts and --types now support lists
