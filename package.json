@@ -1,6 +1,6 @@
 {
   "name": "@bldrs-ai/ifctool",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "main": "src/ifctool.js",
   "bin": "src/main.js",
   "homepage": "https://github.com/bldrs-ai/ifctool",

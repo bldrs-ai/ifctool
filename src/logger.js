@@ -3,7 +3,7 @@ import log4js from 'log4js'
 
 const loggers = {}
 export const logLevels = ['off', 'mark', 'fatal', 'error', 'warn', 'info', 'debug', 'trace']
-let DEFAULT_LEVEL = 'off'
+let DEFAULT_LEVEL = 'warn'
 log4js.configure({
   appenders: {
     err: {type: 'stderr', layout: {type: 'basic'}},
