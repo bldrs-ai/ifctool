@@ -1,7 +1,12 @@
 {
   "name": "@bldrs-ai/ifclib",
+  "homepage": "https://github.com/bldrs-ai/ifctool",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bldrs-ai/ifctool.git"
+  },
   "type": "module",
-  "version": "5.2.2",
+  "version": "5.2.3",
   "exports": {
     ".": "./src/ifctool.js",
     "./src/*": "./src/*"

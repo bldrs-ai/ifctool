@@ -59530,7 +59530,7 @@ __name(stoi2, "stoi");
 
 // lib/src/version.js
 function getPackageVersion() {
-  return "5.2.2";
+  return "5.2.3";
 }
 __name(getPackageVersion, "getPackageVersion");
 
