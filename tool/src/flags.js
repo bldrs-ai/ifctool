@@ -1,4 +1,4 @@
-import {Exception} from './utils.js'
+import {Exception} from '@bldrs-ai/ifclib/src/utils.js'
 
 
 /**

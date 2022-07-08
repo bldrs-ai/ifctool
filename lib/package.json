@@ -1,0 +1,14 @@
+{
+  "name": "@bldrs-ai/ifclib",
+  "type": "module",
+  "version": "5.2.2",
+  "exports": {
+    ".": "./src/ifctool.js",
+    "./src/*": "./src/*"
+  },
+  "dependencies": {
+    "@log4js-node/log4js-api": "^1.0.2",
+    "json2csv": "^5.0.7",
+    "web-ifc": "^0.0.35"
+  }
+}

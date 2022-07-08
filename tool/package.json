@@ -1,0 +1,10 @@
+{
+  "name": "@bldrs-ai/ifctool",
+  "bin": "src/main.js",
+  "type": "module",
+  "version": "5.2.2",
+  "dependencies": {
+    "log4js": "^6.6.0",
+    "@bldrs-ai/ifclib": "^5.2.0"
+  }
+}
