@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 
-import {getPackageVersion} from '@bldrs-ai/ifclib/src/version.js'
+import {getPackageVersion} from '@bldrs-ai/ifclib'
 
 
 const USAGE = `usage: ifctool <file.ifc>
