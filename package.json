@@ -1,29 +1,41 @@
 {
-  "name": "tools",
-  "version": "0.0.1",
-  "main": "src/ifctool.js",
-  "homepage": "https://github.com/bldrs-ai/tools",
-  "bugs": {
-    "url": "https://github.com/bldrs-ai/tools/issues"
+  "name": "@bldrs-ai/ifctool-root",
+  "private": true,
+  "version": "5.2.3",
+  "homepage": "https://github.com/bldrs-ai/ifctool",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bldrs-ai/ifctool.git"
   },
+  "bugs": {
+    "url": "https://github.com/bldrs-ai/ifctool/issues"
+  },
+  "keywords": [
+    "ifc",
+    "ifcJSON",
+    "csv",
+    "cli"
+  ],
+  "workspaces": [
+    "tool",
+    "lib"
+  ],
   "scripts": {
-    "build": "node config/esbuild.js",
-    "lint": "yarn eslint src",
-    "ifctool": "node src/ifctool.js",
-    "ifctool-dist": "node dist/ifctool.js",
+    "build-dist": "node config/esbuild.js",
+    "build-docs": "rm -rf docs/* && cp -r web/* docs",
+    "build-web": "cp -r dist/{ifclib,web-ifc}.* docs",
+    "build": "yarn build-dist && yarn build-docs && yarn build-web",
+    "lint": "yarn eslint lib",
     "test": "node --experimental-vm-modules $(yarn bin jest)",
+    "copy-wasm": "cp node_modules/web-ifc/*.wasm dist",
     "precommit": "yarn lint && yarn test",
     "prepare": "husky install"
   },
-  "dependencies": {
-    "json2csv": "^5.0.7",
-    "web-ifc": "^0.0.35"
-  },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.4",
     "@babel/core": "^7.17.9",
     "@babel/eslint-parser": "^7.17.0",
     "@babel/plugin-syntax-import-assertions": "^7.16.7",
+    "@babel/preset-env": "^7.16.4",
     "esbuild": "^0.14.22",
     "eslint": "^8.14.0",
     "eslint-config-google": "^0.14.0",
@@ -35,8 +47,7 @@
   "jest": {
     "verbose": false,
     "testEnvironment": "node",
-    "testPathIgnorePatterns": [
-    ],
+    "testPathIgnorePatterns": [],
     "transform": {},
     "transformIgnorePatterns": [
       "/node_modules/(?!(web-ifc)/)"
@@ -45,5 +56,8 @@
       "^.+\\.css$": "identity-obj-proxy"
     },
     "setupFilesAfterEnv": []
-  }
+  },
+  "description": "Command line tool for working with IFC models.  It extracts IFC elements by ID or types, and exports as JSON or CSV (via [json2csv](https://www.npmjs.com/package/json2csv)).",
+  "author": "info@bldrs.ai",
+  "license": "MIT"
 }

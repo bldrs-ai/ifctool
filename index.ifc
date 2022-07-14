@@ -6,7 +6,7 @@ ENDSEC;
 
 DATA;
 #1= IFCPOSTALADDRESS(.USERDEFINED.,$,'Address',$,('Bldrs Plaza'),$,'The City',$,'0','AI');
-#5= IFCTELECOMADDRESS(.USERDEFINED.,$,'Phone',('+00 11 101 10 10'),$,$,$,'info@bldrs.ai',$);
+#5= IFCTELECOMADDRESS(.USERDEFINED.,$,'Phone',('+00 11 101 10 10'),$,$,$,'http://bldrs.ai',$);
 #7= IFCPERSON($,'Pablo',$,$,$,$,$,(#1,#5));
 #16= IFCORGANIZATION('Bldrs','Bldrs, Inc.','Bldrs',$,(#1,#5));
 #23= IFCPERSONANDORGANIZATION(#7,#16,$);
