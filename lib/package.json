@@ -14,6 +14,7 @@
   "dependencies": {
     "@log4js-node/log4js-api": "^1.0.2",
     "json2csv": "^5.0.7",
+    "three": "^0.143.0",
     "web-ifc": "^0.0.35"
   }
 }
