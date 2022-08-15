@@ -10,8 +10,7 @@ export function parseFlags(args) {
   for (let i = 0; i < args.length; i++) {
     let flag = args[i]
     if (!flag.startsWith('--')) {
-      // throw new Exception('Trailing arguments must be in format: --flag or --flag=value')
-      throw new Error
+      throw new Exception('Trailing arguments must be in format: --flag or --flag=value')
     }
     flag = flag.substring(2)
     let name = flag
