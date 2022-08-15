@@ -69,7 +69,7 @@ import fs from 'fs'
 import log4js from 'log4js'
 import 'log4js/lib/appenders/stderr.js'
 import {parseFlags} from './flags.js'
-import {Exception, logLevels, processIfcBuffer, setLogLevel} from '@bldrs-ai/ifclib'
+import {processIfcBuffer} from '@bldrs-ai/ifclib'
 
 
 log4js.configure({
@@ -84,7 +84,7 @@ log4js.configure({
 
 const logger = log4js.getLogger('main.js')
 // TODO(pablo): not sure why this isn't set by lib itself.
-setLogLevel('warn')
+// setLogLevel('warn')
 
 
 /**
@@ -111,11 +111,11 @@ export async function processArgs(args, print=console.log) {
     const flags = parseFlags(args)
     if (flags.log) {
       const logLevel = flags.log
-      if (!logLevels.includes(logLevel)) {
-        logger.warn('Log level must be one of: ' + logLevels.join(', '))
-        return 1
-      }
-      setLogLevel(logLevel)
+      // if (!logLevels.includes(logLevel)) {
+        // logger.warn('Log level must be one of: ' + logLevels.join(', '))
+        // return 1
+      // }
+      // setLogLevel(logLevel)
     }
     if (flags.version) {
       print(getPackageVersion())
@@ -128,11 +128,11 @@ export async function processArgs(args, print=console.log) {
     const rawFileData = fs.readFileSync(ifcFilename)
     ifcProps = await processIfcBuffer(rawFileData, flags)
   } catch (e) {
-    if (e instanceof Exception) {
-      logger.warn(e)
-    } else {
-      logger.error(e)
-    }
+    // if (e instanceof Exception) {
+    //  logger.warn(e)
+    // } else {
+    //  logger.error(e)
+    // }
     return 1
   }
   if (ifcProps != null) {
