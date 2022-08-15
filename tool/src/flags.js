@@ -1,4 +1,4 @@
-import {Exception} from '@bldrs-ai/ifclib'
+// import {Exception} from '@bldrs-ai/ifclib'
 
 
 /**
@@ -10,7 +10,8 @@ export function parseFlags(args) {
   for (let i = 0; i < args.length; i++) {
     let flag = args[i]
     if (!flag.startsWith('--')) {
-      throw new Exception('Trailing arguments must be in format: --flag or --flag=value')
+      // throw new Exception('Trailing arguments must be in format: --flag or --flag=value')
+      throw new Error
     }
     flag = flag.substring(2)
     let name = flag
