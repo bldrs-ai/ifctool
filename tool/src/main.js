@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 
-import {getPackageVersion} from '@bldrs-ai/ifclib/src/version.js'
+import {getPackageVersion} from '@bldrs-ai/ifclib'
 
 
 const USAGE = `usage: ifctool <file.ifc>
@@ -69,9 +69,7 @@ import fs from 'fs'
 import log4js from 'log4js'
 import 'log4js/lib/appenders/stderr.js'
 import {parseFlags} from './flags.js'
-import {processIfcBuffer} from '@bldrs-ai/ifclib'
-import {logLevels, setLogLevel} from '@bldrs-ai/ifclib/src/logger.js'
-import {Exception} from '@bldrs-ai/ifclib/src/utils.js'
+import {Exception, logLevels, processIfcBuffer, setLogLevel} from '@bldrs-ai/ifclib'
 
 
 log4js.configure({
@@ -85,6 +83,8 @@ log4js.configure({
 
 
 const logger = log4js.getLogger('main.js')
+// TODO(pablo): not sure why this isn't set by lib itself.
+setLogLevel('warn')
 
 
 /**

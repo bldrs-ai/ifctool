@@ -1,7 +1,6 @@
 {
   "name": "@bldrs-ai/ifctool-root",
   "private": true,
-  "version": "5.2.3",
   "homepage": "https://github.com/bldrs-ai/ifctool",
   "repository": {
     "type": "git",
@@ -59,8 +58,6 @@
   },
   "description": "Command line tool for working with IFC models.  It extracts IFC elements by ID or types, and exports as JSON or CSV (via [json2csv](https://www.npmjs.com/package/json2csv)).",
   "author": "info@bldrs.ai",
-  "license": "MIT",
-  "dependencies": {
-    "three": "^0.142.0"
-  }
+  "license": "MIT"
+
 }

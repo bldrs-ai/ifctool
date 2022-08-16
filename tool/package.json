@@ -7,9 +7,9 @@
   },
   "bin": "src/main.js",
   "type": "module",
-  "version": "5.2.3",
+  "version": "5.3.3",
   "dependencies": {
     "log4js": "^6.6.0",
-    "@bldrs-ai/ifclib": "^5.2.3"
+    "@bldrs-ai/ifclib": "^5.3.3"
   }
 }

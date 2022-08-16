@@ -6,15 +6,12 @@
     "url": "git+https://github.com/bldrs-ai/ifctool.git"
   },
   "type": "module",
-  "version": "5.2.3",
-  "exports": {
-    ".": "./src/ifctool.js",
-    "./src/*": "./src/*"
-  },
+  "version": "5.3.3",
+  "exports": "./src/index.js",
   "dependencies": {
     "@log4js-node/log4js-api": "^1.0.2",
     "json2csv": "^5.0.7",
-    "three": "^0.143.0",
-    "web-ifc": "^0.0.35"
+    "web-ifc": "^0.0.35",
+    "three": "^0.142.0"
   }
 }
