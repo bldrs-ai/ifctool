@@ -13,7 +13,9 @@ module.exports = {
         '/node_modules/(?!(web-ifc)/)',
       ],
       moduleNameMapper: {},
-      setupFilesAfterEnv: [],
+      setupFilesAfterEnv: [
+        '<rootDir>/setupTests.js',
+      ],
     },
   ],
 }
