@@ -25,7 +25,7 @@
     "build-web": "cp -r dist/{ifclib,web-ifc}.* docs",
     "build": "yarn build-dist && yarn build-docs && yarn build-web",
     "lint": "yarn eslint lib",
-    "test": "node --experimental-vm-modules $(yarn bin jest)",
+    "test": "jest",
     "copy-wasm": "cp node_modules/web-ifc/*.wasm dist",
     "precommit": "yarn lint && yarn test",
     "prepare": "husky install"
@@ -42,19 +42,6 @@
     "husky": "^7.0.0",
     "jest": "^27.4.3",
     "shx": "^0.3.4"
-  },
-  "jest": {
-    "verbose": false,
-    "testEnvironment": "node",
-    "testPathIgnorePatterns": [],
-    "transform": {},
-    "transformIgnorePatterns": [
-      "/node_modules/(?!(web-ifc)/)"
-    ],
-    "moduleNameMapper": {
-      "^.+\\.css$": "identity-obj-proxy"
-    },
-    "setupFilesAfterEnv": []
   },
   "description": "Command line tool for working with IFC models.  It extracts IFC elements by ID or types, and exports as JSON or CSV (via [json2csv](https://www.npmjs.com/package/json2csv)).",
   "author": "info@bldrs.ai",

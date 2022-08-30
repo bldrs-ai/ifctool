@@ -70,6 +70,7 @@ import log4js from 'log4js'
 import 'log4js/lib/appenders/stderr.js'
 import {parseFlags} from './flags.js'
 import {Exception, logLevels, processIfcBuffer, setLogLevel} from '@bldrs-ai/ifclib'
+// import {Exception, logLevels, processIfcBuffer, setLogLevel} from '../../lib/src/index.js'
 
 
 log4js.configure({
@@ -109,6 +110,9 @@ export async function processArgs(args, print=console.log) {
       }
     }
     const flags = parseFlags(args)
+    flags.__meta = {
+      inputFilename: ifcFilename
+    }
     if (flags.log) {
       const logLevel = flags.log
       if (!logLevels.includes(logLevel)) {

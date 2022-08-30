@@ -1,14 +1,13 @@
 ISO-10303-21;
 HEADER;
-FILE_DESCRIPTION (('ViewDefinition [CoordinationView, 
+FILE_DESCRIPTION (('ViewDefinition [CoordinationView,
   QuantityTakeOffAddOnView]'), '2;1');
-FILE_NAME ('sample_extractLevels.ifc', '2022-07-19T21:53:56', 
-  ('Architect'), ('Building Designer Office'), 
-  'Your favorite text editor', 
+FILE_NAME ('sample_extractLevels.ifc', '2022-07-19T21:53:56',
+  ('Architect'), ('Building Designer Office'),
+  'Your favorite text editor',
   'your text editor version x.x', 'The authorising person');
 FILE_SCHEMA (('extractLevels'));
 ENDSEC;
-
 #1= IFCPERSON($,'MK',$,$,$,$,$,$);
 #2= IFCORGANIZATION($,'BLDRS.AI',$,$,$);
 #3= IFCPERSONANDORGANIZATION(#1,#2,$);
