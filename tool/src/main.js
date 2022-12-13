@@ -13,6 +13,7 @@ options:
   --out=json|csv          Print as JSON (default) or CSV.  See https://github.com/buildingSMART/ifcJSON
     --fmt=...             Format CSV, see: https://www.npmjs.com/package/json2csv
   --omitExpressId         Omit expressID
+  --omitHistory           Omit OwnerHistory objects
   --omitNull              Omit fields will null values
   --log=[enum =>]         Set log level to one of: {off,error,exception,info,debug,verbose}.
                             default=info
@@ -56,7 +57,7 @@ with custom formatting
  * web-ifc version string.
  */
 function filterLogger() {
-  if (arguments[0] && typeof arguments[0] == 'string' && arguments[0].startsWith('web-ifc: ')) {
+  if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].startsWith('web-ifc: ')) {
     return
   }
   origLogger(...arguments)
@@ -69,8 +70,8 @@ import fs from 'fs'
 import log4js from 'log4js'
 import 'log4js/lib/appenders/stderr.js'
 import {parseFlags} from './flags.js'
-import {Exception, logLevels, processIfcBuffer, setLogLevel} from '@bldrs-ai/ifclib'
-// import {Exception, logLevels, processIfcBuffer, setLogLevel} from '../../lib/src/index.js'
+// import {Exception, logLevels, processIfcBuffer, setLogLevel} from '@bldrs-ai/ifclib'
+import {Exception, logLevels, processIfcBuffer, setLogLevel} from '../../lib/src/index.js'
 
 
 log4js.configure({
@@ -90,11 +91,12 @@ setLogLevel('warn')
 
 /**
  * Main entry point for ifctool.
+ *
  * @param {Array<string>} args
- * @param {function} print Print function for result.
+ * @param {Function} print Print function for result.
  * @return {number} 0 on success, 1 on error.
  */
-export async function processArgs(args, print=console.log) {
+export async function processArgs(args, print = console.log) {
   let ifcProps = null
   try {
     if (args.length < 1) {
@@ -111,12 +113,12 @@ export async function processArgs(args, print=console.log) {
     }
     const flags = parseFlags(args)
     flags.__meta = {
-      inputFilename: ifcFilename
+      inputFilename: ifcFilename,
     }
     if (flags.log) {
       const logLevel = flags.log
       if (!logLevels.includes(logLevel)) {
-        logger.warn('Log level must be one of: ' + logLevels.join(', '))
+        logger.warn(`Log level must be one of: ${logLevels.join(', ')}`)
         return 1
       }
       setLogLevel(logLevel)
@@ -139,11 +141,12 @@ export async function processArgs(args, print=console.log) {
     }
     return 1
   }
-  if (ifcProps != null) {
+  if (ifcProps !== null) {
     print(ifcProps)
   }
   return 0
 }
 
 
-process.exitCode = await processArgs(process.argv.slice(2))
+const argsOffset = 2
+process.exitCode = await processArgs(process.argv.slice(argsOffset))
