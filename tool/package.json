@@ -8,8 +8,15 @@
   "bin": "src/main.js",
   "type": "module",
   "version": "5.4.1",
+  "scripts": {
+    "lint": "yarn eslint src",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
+  },
   "dependencies": {
-    "log4js": "^6.6.0",
-    "@bldrs-ai/ifclib": "^5.4.1"
+    "@bldrs-ai/ifclib": "^5.4.1",
+    "log4js": "^6.6.0"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1"
   }
 }

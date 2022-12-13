@@ -1,3 +1,4 @@
+import {IFCPROJECT} from 'web-ifc'
 import {jest} from '@jest/globals'
 // import log4js from 'log4js'
 import {processArgs} from './main.js'
@@ -19,14 +20,14 @@ describe('main', () => {
       capturedOut = jsonOut
     }
     const resultCode = await processArgs(
-        ['./lib/src/testdata/IFC_2x3/7m900_tue_hello_wall_with_door.ifc', '--elts=1'],
+        ['../lib/src/testdata/IFC_2x3/7m900_tue_hello_wall_with_door.ifc', '--elts=1'],
         mockPrint)
     expect(capturedOut).not.toBe(null)
     const ifcJson = JSON.parse(capturedOut)
     const data0 = ifcJson.data[0]
     expect(resultCode).toBe(0)
     expect(data0.expressID).toBe(1)
-    expect(data0.type).toBe(103090709)
+    expect(data0.type).toBe(IFCPROJECT)
     expect(data0.GlobalId.type).toBe(1)
     expect(data0.GlobalId.value).toBe('0YvctVUKr0kugbFTf53O9L')
     expect(consoleLogMock).toBeCalledTimes(1)
