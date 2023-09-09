@@ -1,3 +1,5 @@
+// Usage: node tool/src/gen.js [number] > box-[number].ifc
+// Here's 1 box:
 /*
 ISO-10303-21;
 HEADER;
@@ -30,7 +32,7 @@ const projectTitle = `Project of ${numBoxen} boxes`
 
 p(`
 ${stepOpen()}
-${ifcHeader()}
+${ifcHeader(numBoxen)}
 ${dataOpen(projectTitle)}
 `)
 
@@ -65,10 +67,17 @@ function stepOpen() {
 
 
 /** @return {string} header */
-function ifcHeader() {
+function ifcHeader(num) {
+  const date = new Date()
+  const year = date.getFullYear()
+  // eslint-disable-next-line no-magic-numbers
+  const month = (`0${(date.getMonth() + 1)}`).slice(-2)
+  // eslint-disable-next-line no-magic-numbers
+  const day = (`0${date.getDate()}`).slice(-2)
+  const ds = `${year}-${month}-${day}`
   return `HEADER;
 FILE_DESCRIPTION(('IFC4'),'2;1');
-FILE_NAME('example.ifc','2018-08-8',(''),(''),'','','');
+FILE_NAME('box-${num}.ifc','${ds}',(''),(''),'','','');
 FILE_SCHEMA(('IFC4'));
 ENDSEC;
 `
