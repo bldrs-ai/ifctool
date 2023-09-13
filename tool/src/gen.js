@@ -1,27 +1,34 @@
 // Usage: node tool/src/gen.js [number] > box-[number].ifc
-// Here's 1 box:
+
+
+const ifcBuildingId = 500
+const ifcGeomSubCtx = 202
+const ifcDirUp = 312
+// Expected output:
 /*
 ISO-10303-21;
 HEADER;
 FILE_DESCRIPTION(('IFC4'),'2;1');
-FILE_NAME('example.ifc','2018-08-8',(''),(''),'','','');
+FILE_NAME('box-1.ifc','2023-09-13',(''),(''),'','','');
 FILE_SCHEMA(('IFC4'));
 ENDSEC;
 DATA;
-#100=IFCPROJECT('UUID-Project',$,'Proxy with extruded box',$,$,$,$,(#201),#301);
+#100=IFCPROJECT('UUID-Project',$,'Project of 1 boxes',$,$,$,$,(#201),#301);
 #201=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.0E-5,$,$);
 #202=IFCGEOMETRICREPRESENTATIONSUBCONTEXT('Body','Model',*,*,*,*,#201,$,.MODEL_VIEW.,$);
 #301=IFCUNITASSIGNMENT((#311));
 #311=IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
+#312=IFCDIRECTION((0.,0.,1.));
 #500=IFCBUILDING('UUID-building',$,'Test Building',$,$,#511,$,$,.ELEMENT.,$,$,$);
 #519=IFCRELAGGREGATES('UUID-RelAggregates',$,$,$,#100,(#500));
-#1000=IFCBUILDINGELEMENTPROXY('UUID-Proxy',$,'P-1','sample proxy',$,$,#1010,$,$);
-#1010=IFCPRODUCTDEFINITIONSHAPE($,$,(#1020));
-#1020=IFCSHAPEREPRESENTATION(#202,'Body','SweptSolid',(#1021));
-#1021=IFCEXTRUDEDAREASOLID(#1022,$,#1034,1.);
-#1022=IFCRECTANGLEPROFILEDEF(.AREA.,'1m x 1m rectangle',$,1.,1.);
-#1034=IFCDIRECTION((0.,0.,1.));
-#10000=IFCRELCONTAINEDINSPATIALSTRUCTURE('UUID-Spatial',$,'Physical model',$,(#1000),#500);
+#520=IFCRECTANGLEPROFILEDEF(.AREA.,'1m x 1m rectangle',$,1.,1.);
+#1000=IFCBUILDINGELEMENTPROXY('UUID-Proxy',$,'1000','sample proxy',$,$,#1001,$,$);
+#1001=IFCPRODUCTDEFINITIONSHAPE($,$,(#1002));
+#1002=IFCSHAPEREPRESENTATION(#202,'Body','SweptSolid',(#1005));
+#1003=IFCCARTESIANPOINT((34.,67.,28.));
+#1004=IFCAXIS2PLACEMENT3D(#1003,$,$);
+#1005=IFCEXTRUDEDAREASOLID(#520,#1004,#312,1.);
+#1006=IFCRELCONTAINEDINSPATIALSTRUCTURE('UUID-Spatial',$,'Physical model',$,(#1000),#500);
 ENDSEC;
 END-ISO-10303-21;
 */
@@ -30,18 +37,14 @@ END-ISO-10303-21;
 const numBoxen = parseInt(process.argv[2] || 1)
 const projectTitle = `Project of ${numBoxen} boxes`
 
-p(`
-${stepOpen()}
+log(`${stepOpen()}
 ${ifcHeader(numBoxen)}
-${dataOpen(projectTitle)}
-`)
+${dataOpen(projectTitle)}`)
 
 boxen(numBoxen)
 
-p(`
-${dataClose()}
-${stepClose()}
-`)
+log(`${dataClose()}
+${stepClose()}`)
 
 
 /** Prints lots of boxen */
@@ -53,16 +56,14 @@ function boxen(num = 10) {
     const z = parseInt(Math.random() * maxSpan)
     // eslint-disable-next-line no-magic-numbers
     const id = i * 1000
-    // eslint-disable-next-line no-magic-numbers
-    p(box(id, [x, y, z], 500, 202, 312))
+    log(box(id, [x, y, z], ifcBuildingId, ifcGeomSubCtx, ifcDirUp))
   }
 }
 
 
 /** @return {string} STEP 10303-21 opening */
 function stepOpen() {
-  return `ISO-10303-21;
-`
+  return `ISO-10303-21;`
 }
 
 
@@ -79,8 +80,7 @@ function ifcHeader(num) {
 FILE_DESCRIPTION(('IFC4'),'2;1');
 FILE_NAME('box-${num}.ifc','${ds}',(''),(''),'','','');
 FILE_SCHEMA(('IFC4'));
-ENDSEC;
-`
+ENDSEC;`
 }
 
 
@@ -98,16 +98,13 @@ function dataOpen(title) {
 #312=IFCDIRECTION((0.,0.,1.));
 #500=IFCBUILDING('UUID-building',$,'Test Building',$,$,#511,$,$,.ELEMENT.,$,$,$);
 #519=IFCRELAGGREGATES('UUID-RelAggregates',$,$,$,#100,(#500));
-#520=IFCRECTANGLEPROFILEDEF(.AREA.,'1m x 1m rectangle',$,1.,1.);
-`
+#520=IFCRECTANGLEPROFILEDEF(.AREA.,'1m x 1m rectangle',$,1.,1.);`
 }
 
 
 /** @return {string} IFC endsec dor data */
 function dataClose() {
-  return `
-ENDSEC;
-`
+  return `ENDSEC;`
 }
 
 /** @return {string} box shape */
@@ -121,15 +118,13 @@ function box(id, coord, buildingId, geomContextId, dirId) {
   const extrudeId = id++ // #1021
   const profileId = 520 // #1022
   const relContainId = id++ // #10000
-  return `
-#${proxyId}=IFCBUILDINGELEMENTPROXY('UUID-Proxy',$,'${name}','sample proxy',$,$,#${shapeId},$,$);
+  return `#${proxyId}=IFCBUILDINGELEMENTPROXY('UUID-Proxy',$,'${name}','sample proxy',$,$,#${shapeId},$,$);
 #${shapeId}=IFCPRODUCTDEFINITIONSHAPE($,$,(#${repId}));
 #${repId}=IFCSHAPEREPRESENTATION(#${geomContextId},'Body','SweptSolid',(#${extrudeId}));
 #${pointId}=IFCCARTESIANPOINT((${ifcCoord(coord)}));
 #${placeId}=IFCAXIS2PLACEMENT3D(#${pointId},$,$);
 #${extrudeId}=IFCEXTRUDEDAREASOLID(#${profileId},#${placeId},#${dirId},1.);
-#${relContainId}=IFCRELCONTAINEDINSPATIALSTRUCTURE('UUID-Spatial',$,'Physical model',$,(#${proxyId}),#${buildingId});
-`
+#${relContainId}=IFCRELCONTAINEDINSPATIALSTRUCTURE('UUID-Spatial',$,'Physical model',$,(#${proxyId}),#${buildingId});`
 }
 
 
@@ -141,12 +136,11 @@ function ifcCoord(c) {
 
 /** @return {string} STEP 10303-21 closing */
 function stepClose() {
-  return `END-ISO-10303-21;
-`
+  return `END-ISO-10303-21;`
 }
 
 
 /** @param {string} msg */
-function p(msg) {
+function log(msg) {
   console.log(msg)
 }
