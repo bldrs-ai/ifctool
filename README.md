@@ -15,7 +15,7 @@ node tool/src/main.js index.ifc
 
 ### Dist
 ```
-yarn prepare
+yarn prepare # first time only
 yarn build
 yarn test
 ```
