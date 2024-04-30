@@ -24,7 +24,7 @@
   ],
   "scripts": {
     "build-dist": "node config/esbuild.js",
-    "build-docs": "rm -rf docs/* && cp -r web/* docs",
+    "build-docs": "rm -rf docs/* && yarn copy-wasm && cp -r web/* docs",
     "build-web": "cp -r dist/{ifclib,web-ifc}.* docs",
     "build": "yarn build-dist && yarn build-docs && yarn build-web",
     "lint": "yarn eslint tool lib",
