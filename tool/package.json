@@ -7,14 +7,15 @@
   },
   "bin": "src/main.js",
   "type": "module",
-  "version": "5.4.1",
+  "version": "5.5.0",
   "scripts": {
     "lint": "yarn eslint src",
     "test": "yarn node --experimental-vm-modules $(yarn bin jest)"
   },
   "dependencies": {
-    "@bldrs-ai/ifclib": "^5.4.1",
-    "log4js": "^6.6.0"
+    "@bldrs-ai/ifclib": "^6.0.0",
+    "log4js": "^6.6.0",
+    "web-ifc": "^0.0.36"
   },
   "devDependencies": {
     "jest": "^29.3.1"

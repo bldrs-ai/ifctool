@@ -6,17 +6,33 @@
     "url": "git+https://github.com/bldrs-ai/ifctool.git"
   },
   "type": "module",
-  "version": "5.4.8",
-  "exports": "./src/index.js",
+  "version": "6.0.0",
+  "exports": {
+    ".": "./src/index.js",
+    "./ifctool": "./src/ifctool.js"
+  },
   "scripts": {
     "lint": "yarn eslint src",
     "test": "jest"
   },
   "dependencies": {
     "@log4js-node/log4js-api": "^1.0.2",
+    "json2csv": "^5.0.7"
+  },
+  "peerDependencies": {
     "filer": "^1.4.1",
-    "json2csv": "^5.0.7",
-    "three": "^0.142.0",
+    "web-ifc": "^0.0.36"
+  },
+  "peerDependenciesMeta": {
+    "filer": {
+      "optional": true
+    },
+    "web-ifc": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "filer": "^1.4.1",
     "web-ifc": "^0.0.36"
   }
 }

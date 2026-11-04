@@ -67,11 +67,12 @@ console.log = filterLogger
 
 
 import fs from 'fs'
+import {fileURLToPath} from 'url'
 import log4js from 'log4js'
 import 'log4js/lib/appenders/stderr.js'
 import {parseFlags} from './flags.js'
-// import {Exception, logLevels, processIfcBuffer, setLogLevel} from '@bldrs-ai/ifclib'
-import {Exception, logLevels, processIfcBuffer, setLogLevel} from '../../lib/src/index.js'
+import {Exception, logLevels, setLogLevel} from '@bldrs-ai/ifclib'
+import {processIfcBuffer} from '@bldrs-ai/ifclib/ifctool'
 
 
 log4js.configure({
@@ -148,5 +149,13 @@ export async function processArgs(args, print = console.log) {
 }
 
 
+// Only run as a CLI when this file is the process entry point (directly or
+// via the npm bin symlink, hence realpath).  main.test.js imports this
+// module for processArgs; running here too would call processArgs with
+// Jest's argv and set process.exitCode = 1, failing `yarn test` whenever
+// Jest runs in-band, even with every test passing.
 const argsOffset = 2
-process.exitCode = await processArgs(process.argv.slice(argsOffset))
+if (process.argv[1] &&
+    fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url))) {
+  process.exitCode = await processArgs(process.argv.slice(argsOffset))
+}
