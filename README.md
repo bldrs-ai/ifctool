@@ -13,6 +13,21 @@ yarn install
 node tool/src/main.js index.ifc
 ```
 
+### Library: `@bldrs-ai/ifclib`
+The library has two entry points:
+- `@bldrs-ai/ifclib`: engine-free helpers (`decodeIFCString`, `reifyName`,
+  `deref`, `getName`, `getType`, `getDescription`, ...) plus logging and
+  utils.  Nothing here imports `web-ifc`, so it can be used with any engine
+  that returns web-ifc-shaped lines (e.g. Conway's `@bldrs-ai/conway/web-ifc`).
+- `@bldrs-ai/ifclib/ifctool`: the web-ifc-backed extractor
+  (`processIfcBuffer`, `extractIfcProps`, `maybeDeref`, `format`).  This
+  needs `web-ifc` installed alongside it.
+
+`web-ifc` (and `filer`, used only by the extractor's levels op in the
+browser) are optional peer dependencies: install them yourself if you use
+the `ifctool` subpath.  The `@bldrs-ai/ifctool` CLI depends on `web-ifc`
+directly.
+
 ### Dist
 ```
 yarn prepare # first time only
@@ -108,6 +123,10 @@ e.g. with the included index.ifc:
 
 # Versions
 Following [semver](https://semver.org/), backwards-incompatible API changes use a new major version number.
+- 6.x: (ifclib) The main entry no longer re-exports the extractor:
+  import `processIfcBuffer`, `extractIfcProps`, `maybeDeref` and `format`
+  from `@bldrs-ai/ifclib/ifctool` instead.  `web-ifc` and `filer` are now
+  optional peer dependencies, and the unused `three` dependency is gone.
 - 5.x: Full extract now includes PropertySets.
 - 4.x: Full extract now includes all top-level elts with globalIds.  Better arg checking and error logging. 
 - 3.x: JSON output now includes header section, towards ifcJSON compliance.
